@@ -32,7 +32,7 @@ A minimal clinical text ingestion service that:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/iammasariya/healthcare-ai-from-scratch.git
 cd healthcare-ai-from-scratch
 
 # Create and activate virtual environment
