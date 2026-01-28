@@ -239,12 +239,6 @@ This is an educational project. Feel free to:
 
 MIT License - See LICENSE file for details
 
-## 👤 Author
-
-[Your Name]
-- LinkedIn: [Your Profile]
-- GitHub: [Your Profile]
-
 ## 🙏 Acknowledgments
 
 Built for healthcare engineers who want to do AI right, not fast.
