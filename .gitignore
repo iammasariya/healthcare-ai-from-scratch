@@ -69,3 +69,13 @@ Thumbs.db
 
 # asdf
 .tool-versions
+
+# Documentation (LinkedIn articles, summaries)
+docs/POST_*_LINKEDIN_ARTICLE.md
+docs/POST_*_SUMMARY.md
+docs/DEPLOYMENT.md
+docs/QUICKSTART.md
+CHANGELOG.md
+CONTRIBUTING.md
+PROJECT_SUMMARY.md
+INDEX.md

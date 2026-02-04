@@ -4,21 +4,37 @@ A production-grade healthcare clinical text service built without any AI/ML comp
 
 ## 🎯 Purpose
 
-This is **Post 1** in a series on building healthcare AI systems from scratch. We intentionally skip the AI to focus on:
+This is a series on building healthcare AI systems from scratch, starting with the foundation.
 
+**Post 1: Foundation Without AI** - Build the system before the model
+**Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation (current)
+
+We focus on:
 - **Auditability**: Every request gets a traceable audit ID
-- **Determinism**: Predictable behavior before adding probabilistic models
+- **Determinism**: Predictable behavior before adding probabilistic models  
 - **Safety**: Production patterns that survive regulatory scrutiny
 - **Extensibility**: A foundation you can build on without rewriting
+- **Reliability**: LLMs with timeouts, retries, and graceful failures
+- **Observability**: Cost tracking and latency monitoring
 
 ## 🏗️ What We Built
 
+### Post 1: Foundation
 A minimal clinical text ingestion service that:
 - ✅ Accepts clinical notes via REST API
 - ✅ Assigns unique audit IDs to every request
 - ✅ Logs all operations deterministically
 - ✅ Provides structured JSON responses
-- ✅ Is ready to extend with AI later
+
+### Post 2: LLM Integration (Current)
+Added Claude-powered clinical note summarization:
+- ✅ `/summarize` endpoint with LLM integration
+- ✅ Automatic retries with exponential backoff
+- ✅ Cost tracking per request (in USD)
+- ✅ Latency monitoring
+- ✅ Response validation
+- ✅ Feature flag for safe rollout
+- ✅ Graceful failure handling
 
 ## 🚀 Quick Start
 
@@ -134,6 +150,58 @@ curl -X POST "http://localhost:8000/ingest" \
   }'
 ```
 
+### POST /summarize (Post 2: LLM Integration)
+
+Summarize a clinical note using Claude LLM.
+
+**Requirements:**
+- Set `ANTHROPIC_API_KEY` environment variable
+- Set `LLM_ENABLED=true` environment variable
+
+**Request Body:**
+```json
+{
+  "patient_id": "string",
+  "note_text": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "audit_id": "uuid",
+  "received_at": "datetime",
+  "status": "completed|failed",
+  "patient_id": "string",
+  "summary": "string (if successful)",
+  "llm_metrics": {
+    "model": "string",
+    "tokens_used": "integer",
+    "latency_ms": "float",
+    "cost_usd": "float"
+  },
+  "error": "string (if failed)"
+}
+```
+
+**Example:**
+```bash
+# Set up environment
+export ANTHROPIC_API_KEY="your-key-here"
+export LLM_ENABLED=true
+
+# Make request
+curl -X POST "http://localhost:8000/summarize" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patient_id": "PT-12345",
+    "note_text": "Patient presents with acute onset headache. Denies trauma. Vital signs: BP 120/80, HR 72, Temp 98.6F. Neurological exam normal. Assessment: Tension headache. Plan: Acetaminophen 500mg PO PRN."
+  }'
+
+# Or use the example client
+python examples/test_summarize.py
+```
+
 ### GET /health
 
 Health check endpoint for monitoring.
@@ -221,8 +289,8 @@ Before moving to Post 2 (adding LLMs), understand:
 
 ## 🛣️ Roadmap
 
-- [x] **Post 1**: Foundation without AI (you are here)
-- [ ] **Post 2**: Adding LLMs without breaking the foundation
+- [x] **Post 1**: Foundation without AI
+- [x] **Post 2**: Adding LLMs without breaking the foundation (current)
 - [ ] **Post 3**: Structured outputs and validation
 - [ ] **Post 4**: Handling failures and retries
 - [ ] **Post 5**: Privacy, security, and compliance
