@@ -253,3 +253,249 @@ class TestCORS:
         
         # CORS preflight should succeed
         assert response.status_code in [200, 204]
+
+
+class TestSummarizeEndpoint:
+    """Tests for /summarize endpoint (Post 2: LLM Integration)."""
+    
+    def test_summarize_llm_disabled(self, client, valid_request):
+        """Summarize should return 503 when LLM is disabled."""
+        from unittest.mock import patch
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = False
+            
+            response = client.post("/summarize", json=valid_request)
+            
+            assert response.status_code == 503
+            # Response could be either error format
+            data = response.json()
+            response_text = str(data).lower()
+            assert "not enabled" in response_text or "llm" in response_text
+    
+    def test_summarize_success(self, client, valid_request):
+        """Successful summarization should return summary with metrics."""
+        from unittest.mock import patch, Mock
+        from app.llm import LLMResponse
+        from uuid import UUID
+        
+        # Mock LLM service to return success
+        mock_response = LLMResponse(
+            content="Patient presents with headache. Vital signs stable.",
+            model="claude-3-5-sonnet-20241022",
+            tokens_used=350,
+            latency_ms=1250.0,
+            cost_usd=0.00525,
+            stop_reason="end_turn"
+        )
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.return_value = (mock_response, None)
+                mock_service.validate_response.return_value = (True, None)
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Verify response structure
+        assert "audit_id" in data
+        assert "received_at" in data
+        assert "status" in data
+        assert "patient_id" in data
+        assert "summary" in data
+        assert "llm_metrics" in data
+        assert "error" in data
+        
+        # Verify audit_id is valid UUID
+        UUID(data["audit_id"])
+        
+        # Verify status
+        assert data["status"] == "completed"
+        
+        # Verify summary
+        assert data["summary"] is not None
+        assert len(data["summary"]) > 0
+        
+        # Verify metrics
+        metrics = data["llm_metrics"]
+        assert metrics["model"] == "claude-3-5-sonnet-20241022"
+        assert metrics["tokens_used"] == 350
+        assert metrics["latency_ms"] == 1250.0
+        assert metrics["cost_usd"] == 0.00525
+        
+        # Verify no error
+        assert data["error"] is None
+    
+    def test_summarize_llm_failure(self, client, valid_request):
+        """LLM failure should return error response."""
+        from unittest.mock import patch, Mock
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.return_value = (None, "LLM API timeout")
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 200  # Graceful degradation
+        data = response.json()
+        
+        assert data["status"] == "failed"
+        assert data["summary"] is None
+        assert data["llm_metrics"] is None
+        assert data["error"] is not None
+        assert "timeout" in data["error"].lower()
+    
+    def test_summarize_validation_failure(self, client, valid_request):
+        """Validation failure should return error response."""
+        from unittest.mock import patch, Mock
+        from app.llm import LLMResponse
+        
+        mock_response = LLMResponse(
+            content="Short",
+            model="claude-3-5-sonnet-20241022",
+            tokens_used=50,
+            latency_ms=500.0,
+            cost_usd=0.001,
+            stop_reason="end_turn"
+        )
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.return_value = (mock_response, None)
+                mock_service.validate_response.return_value = (False, "Response too short")
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        assert data["status"] == "failed"
+        assert data["summary"] is None
+        assert data["error"] is not None
+        assert "validation failed" in data["error"].lower()
+    
+    def test_summarize_empty_patient_id(self, client):
+        """Empty patient_id should return validation error."""
+        request = {
+            "patient_id": "",
+            "note_text": "Some clinical text"
+        }
+        
+        response = client.post("/summarize", json=request)
+        assert response.status_code == 422
+    
+    def test_summarize_empty_note_text(self, client):
+        """Empty note_text should return validation error."""
+        request = {
+            "patient_id": "PT-12345",
+            "note_text": ""
+        }
+        
+        response = client.post("/summarize", json=request)
+        assert response.status_code == 422
+    
+    def test_summarize_missing_api_key(self, client, valid_request):
+        """Missing API key should return 503."""
+        from unittest.mock import patch
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_get_service.side_effect = ValueError("Anthropic API key required")
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 503
+    
+    def test_summarize_unexpected_error(self, client, valid_request):
+        """Unexpected errors should be handled gracefully."""
+        from unittest.mock import patch, Mock
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.side_effect = Exception("Unexpected error")
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 200  # Graceful degradation
+        data = response.json()
+        
+        assert data["status"] == "failed"
+        assert data["error"] is not None
+    
+    def test_summarize_audit_trail_maintained(self, client, valid_request):
+        """Audit trail should be maintained even on failure."""
+        from unittest.mock import patch, Mock
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.return_value = (None, "Error")
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=valid_request)
+        
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Verify audit_id is present even on failure
+        assert "audit_id" in data
+        from uuid import UUID
+        UUID(data["audit_id"])
+    
+    def test_summarize_long_note(self, client):
+        """Long clinical notes should be handled."""
+        from unittest.mock import patch, Mock
+        from app.llm import LLMResponse
+        
+        long_note = "Patient history. " * 500  # ~8500 chars
+        
+        request = {
+            "patient_id": "PT-12345",
+            "note_text": long_note
+        }
+        
+        mock_response = LLMResponse(
+            content="Summarized clinical note",
+            model="claude-3-5-sonnet-20241022",
+            tokens_used=2000,
+            latency_ms=3000.0,
+            cost_usd=0.030,
+            stop_reason="end_turn"
+        )
+        
+        with patch('app.main.settings') as mock_settings:
+            mock_settings.llm_enabled = True
+            
+            with patch('app.main.get_llm_service') as mock_get_service:
+                mock_service = Mock()
+                mock_service.summarize_clinical_note.return_value = (mock_response, None)
+                mock_service.validate_response.return_value = (True, None)
+                mock_get_service.return_value = mock_service
+                
+                response = client.post("/summarize", json=request)
+        
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "completed"

@@ -92,9 +92,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `LITELLM_MODEL` configuration for alternative providers
   - Updated `app/config.py` with LLM settings
 - **Testing and Examples**
+  - `tests/test_llm.py`: Comprehensive LLM service tests (Post 2)
+  - `tests/test_api.py`: Updated with /summarize endpoint tests
   - `examples/test_summarize.py`: Comprehensive testing script
   - Example prompts and expected outputs
   - Cost estimation examples
+  - Test coverage for error handling, retries, validation
 - **Documentation Updates**
   - Updated README with LLM integration guide
   - API usage examples for `/summarize` endpoint

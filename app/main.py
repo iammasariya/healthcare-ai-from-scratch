@@ -393,7 +393,7 @@ async def metrics() -> Dict[str, Any]:
     }
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     import uvicorn
     
     uvicorn.run(
