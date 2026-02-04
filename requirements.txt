@@ -5,5 +5,12 @@ pydantic==2.5.3
 pydantic-settings==2.1.0
 python-multipart==0.0.6
 
+# LLM dependencies (Post 2)
+anthropic==0.40.0
+
+# Optional: LiteLLM for production (unified interface)
+# Uncomment to use app/llm_litellm.py instead of app/llm.py
+# litellm==1.52.0
+
 # Additional utilities
 python-dotenv==1.0.0

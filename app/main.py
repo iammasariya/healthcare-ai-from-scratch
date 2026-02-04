@@ -19,11 +19,14 @@ from typing import Dict, Any
 from app.models import (
     ClinicalNoteRequest,
     ClinicalNoteResponse,
+    SummarizeNoteResponse,
+    LLMMetrics,
     HealthResponse,
     ErrorResponse
 )
 from app.logging import log_request, log_response, log_error
 from app.config import settings
+from app.llm import get_llm_service, LLMService
 
 
 @asynccontextmanager
@@ -107,7 +110,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     
     return JSONResponse(
         status_code=exc.status_code,
-        content=error_response.model_dump()
+        content=error_response.model_dump(mode='json')
     )
 
 
@@ -132,7 +135,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
     
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=error_response.model_dump()
+        content=error_response.model_dump(mode='json')
     )
 
 
@@ -220,6 +223,158 @@ async def ingest_note(request: ClinicalNoteRequest) -> ClinicalNoteResponse:
     log_response(audit_id, status="received")
     
     return response
+
+
+@app.post(
+    "/summarize",
+    response_model=SummarizeNoteResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Clinical Notes"],
+    summary="Summarize a clinical note using LLM",
+    description="""
+    Summarize a clinical note using Claude LLM.
+    
+    This endpoint demonstrates Post 2 concepts:
+    - Safe LLM integration with timeouts and retries
+    - Cost and latency tracking
+    - Graceful failure handling
+    - Audit trail preservation
+    
+    **Feature Flag**: LLM functionality must be enabled via LLM_ENABLED env var.
+    **API Key**: Requires ANTHROPIC_API_KEY to be set.
+    """
+)
+async def summarize_note(request: ClinicalNoteRequest) -> SummarizeNoteResponse:
+    """
+    Summarize a clinical note using LLM.
+    
+    This endpoint shows how to add AI safely:
+    1. Check feature flag (fail fast if disabled)
+    2. Generate audit ID for traceability
+    3. Call LLM with timeouts and retries
+    4. Validate response
+    5. Track costs and latency
+    6. Handle failures gracefully
+    7. Return traceable response
+    
+    Args:
+        request: ClinicalNoteRequest containing patient_id and note_text
+        
+    Returns:
+        SummarizeNoteResponse with summary and metrics (or error)
+    """
+    # Check if LLM functionality is enabled
+    if not settings.llm_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM functionality is not enabled. Set LLM_ENABLED=true to enable."
+        )
+    
+    # Generate audit ID and log request
+    audit_id = log_request(request.model_dump())
+    received_at = datetime.utcnow()
+    
+    try:
+        # Get LLM service instance
+        llm_service = get_llm_service()
+        
+        # Call LLM to summarize the note
+        llm_response, error = llm_service.summarize_clinical_note(
+            note_text=request.note_text,
+            audit_id=audit_id,
+        )
+        
+        # Check if LLM call failed
+        if error or llm_response is None:
+            # Log failure
+            log_response(audit_id, status="failed", metadata={"error": error})
+            
+            # Return error response
+            return SummarizeNoteResponse(
+                audit_id=audit_id,
+                received_at=received_at,
+                status="failed",
+                patient_id=request.patient_id,
+                summary=None,
+                llm_metrics=None,
+                error=error
+            )
+        
+        # Validate LLM response
+        is_valid, validation_error = llm_service.validate_response(llm_response)
+        if not is_valid:
+            # Log validation failure
+            log_response(
+                audit_id,
+                status="validation_failed",
+                metadata={"validation_error": validation_error}
+            )
+            
+            # Return error response
+            return SummarizeNoteResponse(
+                audit_id=audit_id,
+                received_at=received_at,
+                status="failed",
+                patient_id=request.patient_id,
+                summary=None,
+                llm_metrics=None,
+                error=f"Response validation failed: {validation_error}"
+            )
+        
+        # Build metrics object
+        metrics = LLMMetrics(
+            model=llm_response.model,
+            tokens_used=llm_response.tokens_used,
+            latency_ms=llm_response.latency_ms,
+            cost_usd=llm_response.cost_usd,
+        )
+        
+        # Log successful response with metrics
+        log_response(
+            audit_id,
+            status="completed",
+            metadata={
+                "llm_metrics": llm_response.to_dict(),
+                "summary_length": len(llm_response.content)
+            }
+        )
+        
+        # Return successful response
+        return SummarizeNoteResponse(
+            audit_id=audit_id,
+            received_at=received_at,
+            status="completed",
+            patient_id=request.patient_id,
+            summary=llm_response.content,
+            llm_metrics=metrics,
+            error=None
+        )
+        
+    except ValueError as e:
+        # API key not configured
+        error_msg = str(e)
+        log_error(audit_id, "LLMConfigurationError", error_msg)
+        
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=error_msg
+        )
+    
+    except Exception as e:
+        # Unexpected error
+        error_msg = f"Unexpected error during summarization: {str(e)}"
+        log_error(audit_id, "SummarizationError", error_msg)
+        
+        # Return error response instead of raising (graceful degradation)
+        return SummarizeNoteResponse(
+            audit_id=audit_id,
+            received_at=received_at,
+            status="failed",
+            patient_id=request.patient_id,
+            summary=None,
+            llm_metrics=None,
+            error=error_msg
+        )
 
 
 @app.get("/metrics", tags=["Monitoring"])

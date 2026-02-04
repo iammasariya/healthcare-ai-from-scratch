@@ -46,6 +46,15 @@ class Settings(BaseSettings):
     # Privacy settings
     log_payload_preview_length: int = 100
     
+    # LLM settings (Post 2)
+    anthropic_api_key: Optional[str] = None
+    llm_enabled: bool = False  # Feature flag for LLM functionality
+    llm_model: str = "claude-3-5-sonnet-20241022"
+    llm_max_tokens: int = 1024
+    llm_temperature: float = 0.3
+    llm_timeout: float = 30.0
+    llm_max_retries: int = 2
+    
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
