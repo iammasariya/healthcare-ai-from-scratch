@@ -236,17 +236,31 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
    - Clear data flow builds confidence
    - Deterministic foundation supports probabilistic AI
 
-## Next Steps (Post 2)
+## Evolution Through the Series
 
-Adding LLMs will introduce:
-- API key management
-- Prompt versioning
-- Response validation
-- Fallback handling
-- Cost tracking
-- Latency monitoring
+### Post 2: LLM Integration (Completed)
+Added LLM capabilities while keeping the foundation intact:
+- ✅ API key management
+- ✅ Response validation
+- ✅ Fallback handling
+- ✅ Cost tracking
+- ✅ Latency monitoring
+- ✅ Retry logic with exponential backoff
+- ✅ Feature flags for safe rollout
 
-But this foundation remains unchanged. That's the point.
+The foundation remained unchanged. That's the point.
+
+### Post 3: Prompting as Versioned Code (Planned)
+Will add prompt management:
+- Prompt versioning system
+- A/B testing infrastructure
+- Rollback mechanisms
+- Template management
+
+### Beyond Post 3
+The series continues through Post 12, covering evaluation, deployment, monitoring, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
+
+Each post builds on this foundation without breaking it.
 
 ## Questions & Design Decisions
 

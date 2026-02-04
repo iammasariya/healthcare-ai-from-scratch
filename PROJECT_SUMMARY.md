@@ -300,15 +300,25 @@ We welcome contributions! See `CONTRIBUTING.md` for:
 
 ## 📈 What's Next?
 
-This is **Post 1** in a series. Coming next:
+This is **Post 1** in a 12-post series. Progress so far:
 
-- **Post 2**: Adding LLMs without breaking the foundation
-- **Post 3**: Structured outputs and validation
-- **Post 4**: Handling failures and retries
-- **Post 5**: Privacy, security, and compliance
-- **Post 6**: Monitoring and observability
+### Completed
+- ✅ **Post 1**: Foundation Without AI
+- ✅ **Post 2**: Adding LLMs Without Breaking Things
 
-See `ROADMAP.md` for the complete series plan.
+### Coming Next
+- **Post 3**: Prompting as Versioned Code
+- **Post 4**: Determinism, Variability, and Why Clinicians Notice
+- **Post 5**: Building Your First Evaluation Harness
+- **Post 6**: Shadow Mode Deployment
+- **Post 7**: Monitoring That Triggers Action
+- **Post 8**: Human Feedback Without Burning Clinicians
+- **Post 9**: Failure Drills for AI Systems
+- **Post 10**: Governance as Code
+- **Post 11**: From Service to Platform
+- **Post 12**: What This Still Does Not Solve
+
+See `ROADMAP.md` for detailed descriptions of each post.
 
 ## 💡 Key Takeaways
 
