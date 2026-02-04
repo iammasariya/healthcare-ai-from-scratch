@@ -60,8 +60,8 @@ Complete guide to navigating this codebase.
 
 #### See What's Coming
 → **[ROADMAP.md](ROADMAP.md)**
-- Series overview (Posts 1-8)
-- Timeline and features
+- Complete series overview (Posts 1-12)
+- Detailed post descriptions
 - Long-term vision
 - How to follow along
 
@@ -310,12 +310,12 @@ Before deploying or modifying:
 
 ## 🎯 Remember
 
-This is **Post 1**: Foundation without AI
+**Current Status**: Post 2 completed
 
-- Focus on understanding the scaffolding
-- Don't rush to add AI
-- Master this foundation first
-- Post 2 will build on this
+- Foundation is built (Post 1)
+- LLM integration added (Post 2)
+- Prompt versioning is next (Post 3)
+- 10 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -324,19 +324,23 @@ This is **Post 1**: Foundation without AI
 ## 📍 You Are Here
 
 ```
-Healthcare AI From Scratch
+Healthcare AI From Scratch (12-Post Series)
 │
-├─ Post 1: Foundation ← YOU ARE HERE
-├─ Post 2: LLM Integration (coming soon)
-├─ Post 3: Structured Outputs (planned)
-├─ Post 4: Failure Handling (planned)
-├─ Post 5: Security & Compliance (planned)
-├─ Post 6: Monitoring (planned)
-├─ Post 7: Evaluation (planned)
-└─ Post 8: Scaling (planned)
+├─ ✅ Post 1: Foundation Without AI
+├─ ✅ Post 2: Adding LLMs Without Breaking Things ← YOU ARE HERE
+├─ 📋 Post 3: Prompting as Versioned Code
+├─ 📋 Post 4: Determinism, Variability, and Why Clinicians Notice
+├─ 📋 Post 5: Building Your First Evaluation Harness
+├─ 📋 Post 6: Shadow Mode Deployment
+├─ 📋 Post 7: Monitoring That Triggers Action
+├─ 📋 Post 8: Human Feedback Without Burning Clinicians
+├─ 📋 Post 9: Failure Drills for AI Systems
+├─ 📋 Post 10: Governance as Code
+├─ 📋 Post 11: From Service to Platform
+└─ 📋 Post 12: What This Still Does Not Solve
 ```
 
-See **ROADMAP.md** for complete series.
+See **ROADMAP.md** for detailed descriptions of each post.
 
 ---
 
