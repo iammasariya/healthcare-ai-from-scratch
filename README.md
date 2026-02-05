@@ -318,10 +318,10 @@ Before moving to Post 2 (adding LLMs), understand:
 
 ### Completed
 - [x] **Post 1**: Foundation Without AI
-- [x] **Post 2**: Adding LLMs Without Breaking Things (current)
+- [x] **Post 2**: Adding LLMs Without Breaking Things
+- [x] **Post 3**: Prompting as Versioned Code (current)
 
 ### Planned
-- [x] **Post 3**: Prompting as Versioned Code (current)
 - [ ] **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - [ ] **Post 5**: Building Your First Evaluation Harness
 - [ ] **Post 6**: Shadow Mode Deployment
