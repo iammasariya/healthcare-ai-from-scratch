@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test test-cov run run-prod docker-build docker-run clean lint format
+.PHONY: help install install-dev test test-cov test-prompts run run-prod verify verify-prompts examples docker-build docker-run clean lint format
 
 help:
 	@echo "Healthcare AI Service - Available Commands"
@@ -9,10 +9,18 @@ help:
 	@echo ""
 	@echo "Development:"
 	@echo "  make run          Run development server with auto-reload"
-	@echo "  make test         Run tests"
+	@echo "  make test         Run all tests"
 	@echo "  make test-cov     Run tests with coverage report"
+	@echo "  make test-prompts Run prompt system tests only"
 	@echo "  make lint         Run code linters"
 	@echo "  make format       Format code with black and isort"
+	@echo ""
+	@echo "Verification:"
+	@echo "  make verify        Run all verification checks"
+	@echo "  make verify-prompts Verify prompt system (Post 3)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make examples      Run all example scripts"
 	@echo ""
 	@echo "Docker:"
 	@echo "  make docker-build Build Docker image"
@@ -38,6 +46,31 @@ test:
 test-cov:
 	pytest --cov=app --cov-report=term-missing --cov-report=html
 	@echo "Coverage report generated in htmlcov/index.html"
+
+test-prompts:
+	pytest tests/test_prompts.py -v
+
+verify:
+	@echo "Running verification checks..."
+	@python verify_prompts.py
+	@echo ""
+	@echo "Running test suite..."
+	@pytest tests/ -q
+	@echo ""
+	@echo "✓ All verifications passed!"
+
+verify-prompts:
+	python verify_prompts.py
+
+examples:
+	@echo "Running example: Basic ingestion (Post 1)"
+	@python examples/test_client.py
+	@echo ""
+	@echo "Running example: Prompt versioning (Post 3)"
+	@python examples/test_prompts.py
+	@echo ""
+	@echo "For LLM example (Post 2), set ANTHROPIC_API_KEY and run:"
+	@echo "  python examples/test_summarize.py"
 
 run:
 	uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

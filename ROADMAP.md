@@ -72,9 +72,9 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 
 ---
 
-### 🎯 Post 3: Prompting as Versioned Code
+### ✅ Post 3: Prompting as Versioned Code
 
-**Status**: Planned  
+**Status**: Complete  
 **Goal**: Treat prompts as first-class artifacts with versioning and traceability
 
 **What They Learn**:
@@ -83,13 +83,17 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 - Why prompt changes must be auditable events
 - How to detect and prevent prompt drift
 
-**Planned Features**:
-- [ ] Externalize prompts to versioned files
-- [ ] Prompt versioning system (semantic versioning)
-- [ ] Log prompt hash/version with each request
-- [ ] Prompt template management
-- [ ] A/B testing infrastructure for prompts
-- [ ] Rollback mechanism for prompt changes
+**What We Built**:
+- ✅ Externalized prompts to versioned YAML files
+- ✅ Prompt versioning system (semantic versioning: 1.0.0, 1.1.0, 2.0.0)
+- ✅ Log prompt hash/version with each request
+- ✅ Prompt template management with variable substitution
+- ✅ A/B testing infrastructure for prompts
+- ✅ Rollback mechanism (change version without deployment)
+- ✅ SHA256 integrity verification
+- ✅ Lifecycle management (active/deprecated/retired)
+- ✅ Hot-reload capability
+- ✅ Comprehensive test suite (16 tests)
 
 **Key Learning**: Prompt changes are code changes. Version them like code.
 
@@ -105,7 +109,9 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 - How to tie outputs to prompt versions
 - How to handle prompt rollbacks
 
-**Outcome**: Prompt changes become auditable events in your system.
+**Outcome**: Prompt changes are now auditable events. Every request logs prompt version and hash for complete reproducibility.
+
+**Files**: `app/prompts.py`, `prompts/clinical_summarization_v1.0.0.yaml`, `tests/test_prompts.py`, updated `app/llm.py` and `app/models.py`
 
 ---
 

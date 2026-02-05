@@ -1,13 +1,14 @@
-# Healthcare AI Service - Post 1: Foundation Without AI
+# Healthcare AI Service - From First Principles
 
-A production-grade healthcare clinical text service built without any AI/ML components. This project demonstrates the essential scaffolding every healthcare AI system needs before adding models.
+A production-grade healthcare AI system built from first principles. This project demonstrates building healthcare AI the right way: foundation first, models second, prompt versioning third.
 
 ## 🎯 Purpose
 
 This is a series on building healthcare AI systems from scratch, starting with the foundation.
 
-**Post 1: Foundation Without AI** - Build the system before the model
-**Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation (current)
+**Post 1: Foundation Without AI** - Build the system before the model  
+**Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation  
+**Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
@@ -16,6 +17,7 @@ We focus on:
 - **Extensibility**: A foundation you can build on without rewriting
 - **Reliability**: LLMs with timeouts, retries, and graceful failures
 - **Observability**: Cost tracking and latency monitoring
+- **Reproducibility**: Versioned prompts with integrity verification
 
 ## 🏗️ What We Built
 
@@ -26,7 +28,7 @@ A minimal clinical text ingestion service that:
 - ✅ Logs all operations deterministically
 - ✅ Provides structured JSON responses
 
-### Post 2: LLM Integration (Current)
+### Post 2: LLM Integration
 Added Claude-powered clinical note summarization:
 - ✅ `/summarize` endpoint with LLM integration
 - ✅ Automatic retries with exponential backoff
@@ -35,6 +37,17 @@ Added Claude-powered clinical note summarization:
 - ✅ Response validation
 - ✅ Feature flag for safe rollout
 - ✅ Graceful failure handling
+
+### Post 3: Prompt Versioning (Current)
+Treat prompts as versioned artifacts:
+- ✅ Prompts stored in YAML files with semantic versioning
+- ✅ SHA256 integrity verification
+- ✅ Prompt version and hash logged with every request
+- ✅ Hot-reload without service restart
+- ✅ A/B testing infrastructure
+- ✅ Rollback capability without code deployment
+- ✅ Governance metadata (approvals, testing notes)
+- ✅ 16 comprehensive tests for prompt management
 
 ## 🚀 Quick Start
 
@@ -98,15 +111,28 @@ healthcare-ai-from-scratch/
 │   ├── main.py          # FastAPI application and routes
 │   ├── models.py        # Pydantic models for request/response
 │   ├── logging.py       # Structured logging with audit IDs
-│   └── config.py        # Configuration management
+│   ├── config.py        # Configuration management
+│   ├── llm.py           # LLM service with retry logic (Post 2)
+│   └── prompts.py       # Prompt management system (Post 3)
+├── prompts/             # Versioned prompt files (Post 3)
+│   └── clinical_summarization_v1.0.0.yaml
 ├── tests/
 │   ├── __init__.py
 │   ├── test_api.py      # API endpoint tests
-│   └── test_logging.py  # Logging functionality tests
+│   ├── test_logging.py  # Logging functionality tests
+│   ├── test_llm.py      # LLM service tests (Post 2)
+│   └── test_prompts.py  # Prompt management tests (Post 3)
 ├── examples/
-│   └── test_client.py   # Example client usage
+│   ├── test_client.py   # Example client usage
+│   └── test_summarize.py # LLM summarization example (Post 2)
 ├── docs/
-│   └── architecture.md  # Architecture decisions
+│   ├── architecture.md         # Architecture decisions
+│   ├── POST_1_LINKEDIN_ARTICLE.md
+│   ├── POST_1_SUMMARY.md
+│   ├── POST_2_LINKEDIN_ARTICLE.md
+│   ├── POST_2_SUMMARY.md
+│   ├── POST_3_LINKEDIN_ARTICLE.md  # Post 3 article
+│   └── POST_3_SUMMARY.md           # Post 3 summary
 ├── .env.example         # Environment variables template
 ├── .gitignore
 ├── requirements.txt
@@ -114,6 +140,7 @@ healthcare-ai-from-scratch/
 ├── pytest.ini
 ├── Dockerfile
 ├── docker-compose.yml
+├── verify_prompts.py    # Prompt verification script (Post 3)
 └── README.md
 ```
 
@@ -294,7 +321,7 @@ Before moving to Post 2 (adding LLMs), understand:
 - [x] **Post 2**: Adding LLMs Without Breaking Things (current)
 
 ### Planned
-- [ ] **Post 3**: Prompting as Versioned Code
+- [x] **Post 3**: Prompting as Versioned Code (current)
 - [ ] **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - [ ] **Post 5**: Building Your First Evaluation Harness
 - [ ] **Post 6**: Shadow Mode Deployment

@@ -167,7 +167,7 @@ class LLMMetrics(BaseModel):
     """
     Metadata about LLM processing.
     
-    Tracks cost, latency, and token usage for observability.
+    Tracks cost, latency, token usage, and prompt versioning for observability.
     """
     model: str = Field(
         ...,
@@ -185,6 +185,14 @@ class LLMMetrics(BaseModel):
         ...,
         description="Estimated cost in USD"
     )
+    prompt_version: Optional[str] = Field(
+        None,
+        description="Version of prompt used for this request (e.g., '1.0.0')"
+    )
+    prompt_hash: Optional[str] = Field(
+        None,
+        description="SHA256 hash of prompt content for verification"
+    )
 
     class Config:
         json_schema_extra = {
@@ -192,7 +200,9 @@ class LLMMetrics(BaseModel):
                 "model": "claude-3-5-sonnet-20241022",
                 "tokens_used": 450,
                 "latency_ms": 1234.56,
-                "cost_usd": 0.006750
+                "cost_usd": 0.006750,
+                "prompt_version": "1.0.0",
+                "prompt_hash": "a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890"
             }
         }
 

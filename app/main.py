@@ -321,12 +321,14 @@ async def summarize_note(request: ClinicalNoteRequest) -> SummarizeNoteResponse:
                 error=f"Response validation failed: {validation_error}"
             )
         
-        # Build metrics object
+        # Build metrics object (including prompt versioning if available)
         metrics = LLMMetrics(
             model=llm_response.model,
             tokens_used=llm_response.tokens_used,
             latency_ms=llm_response.latency_ms,
             cost_usd=llm_response.cost_usd,
+            prompt_version=llm_response.prompt_version,
+            prompt_hash=llm_response.prompt_hash,
         )
         
         # Log successful response with metrics

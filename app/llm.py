@@ -52,6 +52,8 @@ class LLMResponse:
         latency_ms: Time taken for API call in milliseconds
         cost_usd: Estimated cost in USD
         stop_reason: Why the model stopped generating
+        prompt_version: Version of prompt used (optional, for versioned prompts)
+        prompt_hash: SHA256 hash of prompt (optional, for integrity verification)
     """
     def __init__(
         self,
@@ -61,6 +63,8 @@ class LLMResponse:
         latency_ms: float,
         cost_usd: float,
         stop_reason: str,
+        prompt_version: Optional[str] = None,
+        prompt_hash: Optional[str] = None,
     ):
         self.content = content
         self.model = model
@@ -68,10 +72,12 @@ class LLMResponse:
         self.latency_ms = latency_ms
         self.cost_usd = cost_usd
         self.stop_reason = stop_reason
+        self.prompt_version = prompt_version
+        self.prompt_hash = prompt_hash
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for logging."""
-        return {
+        result = {
             "model": self.model,
             "tokens_used": self.tokens_used,
             "latency_ms": self.latency_ms,
@@ -79,6 +85,11 @@ class LLMResponse:
             "stop_reason": self.stop_reason,
             "content_length": len(self.content),
         }
+        if self.prompt_version:
+            result["prompt_version"] = self.prompt_version
+        if self.prompt_hash:
+            result["prompt_hash"] = self.prompt_hash[:8] + "..."  # Log only prefix
+        return result
 
 
 class LLMError(Exception):
@@ -134,19 +145,24 @@ class LLMService:
         self,
         note_text: str,
         audit_id: UUID,
+        prompt_version: Optional[str] = None,
+        use_versioned_prompts: bool = True,
     ) -> Tuple[Optional[LLMResponse], Optional[str]]:
         """
-        Summarize a clinical note using Claude.
+        Summarize a clinical note using Claude with versioned prompts.
         
-        This is a simple first use case that demonstrates:
+        This demonstrates:
         - How to call the LLM safely
         - How to handle failures
         - How to track costs and latency
         - How to maintain audit trails
+        - How to use versioned prompts for reproducibility
         
         Args:
             note_text: The clinical note to summarize
             audit_id: Audit ID for traceability
+            prompt_version: Specific prompt version to use (uses latest if None)
+            use_versioned_prompts: If True, load from prompt manager; if False, use legacy hardcoded prompts
             
         Returns:
             Tuple of (LLMResponse, error_message)
@@ -155,9 +171,57 @@ class LLMService:
         """
         start_time = time.time()
         
-        # Build prompt
-        # In production, this would come from a versioned prompt template
-        system_prompt = """You are a clinical documentation assistant. 
+        # Initialize prompt metadata
+        prompt_v = None
+        prompt_h = None
+        
+        # Load prompts (versioned or legacy)
+        if use_versioned_prompts:
+            try:
+                from app.prompts import get_prompt_manager
+                
+                # Load versioned prompt
+                prompt_manager = get_prompt_manager()
+                prompt = prompt_manager.get_prompt(
+                    task="clinical_summarization",
+                    version=prompt_version
+                )
+                
+                if not prompt:
+                    error_msg = f"Prompt not found: clinical_summarization v{prompt_version or 'latest'}"
+                    log_error(audit_id, "PromptNotFoundError", error_msg)
+                    return None, error_msg
+                
+                # Verify prompt integrity
+                if not prompt_manager.validate_prompt_integrity(prompt):
+                    error_msg = f"Prompt integrity check failed for v{prompt.version}"
+                    log_error(audit_id, "PromptIntegrityError", error_msg)
+                    return None, error_msg
+                
+                # Render user prompt with actual note text
+                system_prompt = prompt.system_prompt
+                user_prompt = prompt_manager.render_user_prompt(
+                    prompt,
+                    note_text=note_text
+                )
+                
+                # Store prompt metadata for logging
+                prompt_v = prompt.version
+                prompt_h = prompt.prompt_hash
+                
+                # Log which prompt version we're using
+                self.logger.info(
+                    f"Using prompt version {prompt.version} | "
+                    f"hash={prompt.prompt_hash[:8]} | audit_id={audit_id}"
+                )
+                
+            except Exception as e:
+                error_msg = f"Error loading versioned prompt: {str(e)}"
+                log_error(audit_id, "PromptLoadError", error_msg)
+                return None, error_msg
+        else:
+            # Legacy: Use hardcoded prompts for backward compatibility
+            system_prompt = """You are a clinical documentation assistant. 
 Your task is to create a concise summary of clinical notes while preserving all medically relevant information.
 
 Guidelines:
@@ -167,11 +231,13 @@ Guidelines:
 - Keep summary under 200 words
 - Never add information not in the original note"""
 
-        user_prompt = f"""Summarize the following clinical note:
+            user_prompt = f"""Summarize the following clinical note:
 
 {note_text}
 
 Provide a concise clinical summary."""
+            
+            self.logger.info(f"Using legacy hardcoded prompts | audit_id={audit_id}")
 
         try:
             # Attempt API call with retries
@@ -200,14 +266,21 @@ Provide a concise clinical summary."""
                 latency_ms=latency_ms,
                 cost_usd=total_cost,
                 stop_reason=response.stop_reason,
+                prompt_version=prompt_v,
+                prompt_hash=prompt_h,
             )
             
-            # Log success metrics
-            self.logger.info(
-                f"LLM call successful | audit_id={audit_id} | "
-                f"latency={latency_ms:.2f}ms | tokens={llm_response.tokens_used} | "
-                f"cost=${total_cost:.6f}"
-            )
+            # Log success metrics (including prompt version if available)
+            log_parts = [
+                f"LLM call successful | audit_id={audit_id}",
+                f"latency={latency_ms:.2f}ms",
+                f"tokens={llm_response.tokens_used}",
+                f"cost=${total_cost:.6f}",
+            ]
+            if prompt_v:
+                log_parts.append(f"prompt_version={prompt_v}")
+            
+            self.logger.info(" | ".join(log_parts))
             
             return llm_response, None
             
