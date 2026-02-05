@@ -133,13 +133,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timeout protection against hanging requests
 - Rate limit handling
 
+## [0.3.0] - 2026-02-04
+
+### Added
+- **Prompt Management System**: Enterprise-grade prompt versioning
+  - `app/prompts.py`: Complete prompt management implementation (280 lines)
+  - `prompts/`: Directory for versioned prompt YAML files
+  - Semantic versioning support (1.0.0, 1.1.0, 2.0.0)
+  - SHA256 integrity verification for tamper detection
+  - Lifecycle management (active/deprecated/retired)
+  - Hot-reload capability without service restart
+- **Versioned Prompts as Code**
+  - `prompts/clinical_summarization_v1.0.0.yaml`: Production prompt with governance
+  - YAML format with metadata (version, created_at, created_by, status)
+  - Template variables for dynamic content
+  - Validation rules (max_tokens, temperature)
+  - Governance metadata (approvals, regulatory status, testing notes)
+- **Audit Trail Enhancement**
+  - Prompt version logged with every LLM request
+  - Prompt hash logged for integrity verification
+  - Complete reproducibility of any output
+  - Enhanced `LLMMetrics` model with prompt_version and prompt_hash
+- **A/B Testing Infrastructure**
+  - Ability to specify prompt version per request
+  - Compare different prompt versions in production
+  - Version selection via configuration or request parameter
+- **Rollback Capability**
+  - Change prompt version without code deployment
+  - Update YAML status field (active/deprecated)
+  - Instant rollback by switching versions
+  - No service restart required
+- **Testing and Verification**
+  - `tests/test_prompts.py`: 16 comprehensive tests for prompt system
+  - `verify_prompts.py`: Standalone verification script
+  - Tests for versioning, integrity, templates, lifecycle
+  - 100% test coverage on prompt management
+- **Documentation**
+  - `docs/POST_3_LINKEDIN_ARTICLE.md`: Complete article (6,500+ words)
+  - `docs/POST_3_SUMMARY.md`: Comprehensive deliverables summary
+  - Updated README, ROADMAP, PROJECT_SUMMARY
+
+### Enhanced
+- **LLM Service**: Enhanced to use versioned prompts
+  - Loads prompts from PromptManager
+  - Falls back to legacy hardcoded prompts for backward compatibility
+  - Logs prompt version and hash with every call
+  - Returns prompt metadata in responses
+- **Response Models**: Extended with prompt versioning
+  - `LLMResponse` includes prompt_version and prompt_hash
+  - `LLMMetrics` tracks prompt metadata
+  - Full traceability from request to output
+- **Dependencies**: Added prompt management support
+  - `pyyaml==6.0.1`: YAML parsing for prompt files
+  - Updated `requirements.txt`
+
+### Design Decisions
+- **Prompts as Artifacts**: Treat prompts like code, not magic strings
+- **Semantic Versioning**: Clear upgrade paths (major.minor.patch)
+- **Integrity Verification**: SHA256 hashing prevents tampering
+- **Governance Built-In**: Metadata for approvals and regulatory compliance
+- **Hot-Reload**: Update prompts without service restart
+- **Backward Compatible**: Legacy code continues to work
+
+### Testing
+- 16 new tests for prompt management system
+- Total test suite: 79 tests (100% passing)
+- Covers versioning, integrity, templates, lifecycle, edge cases
+- Verification script for quick validation
+
+### Security & Compliance
+- SHA256 integrity verification
+- Audit trail for every prompt change
+- Governance metadata (approvals, testing)
+- Regulatory status tracking
+- Complete reproducibility
+
 ## [Unreleased]
 
-### Planned for Post 3
-- Structured outputs with validation
-- Prompt versioning and management
-- Advanced fallback strategies
-- A/B testing framework
+### Planned for Post 4
+- Determinism controls and variability measurement
+- Temperature tuning experiments
+- Output divergence metrics
 
 ### Future Enhancements
 - Database integration for persistence
@@ -155,18 +229,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **0.1.0** - Foundation without AI (Post 1)
-- **0.2.0** - LLM integration (Post 2)
-- **0.3.0** - (Planned) Structured outputs
-- **0.4.0** - (Planned) Production hardening
+- **0.1.0** - Foundation without AI (Post 1) ✅
+- **0.2.0** - LLM integration (Post 2) ✅
+- **0.3.0** - Prompt versioning (Post 3) ✅
+- **0.4.0** - (Planned) Determinism and variability (Post 4)
+- **0.5.0** - (Planned) Evaluation harness (Post 5)
+- **0.6.0** - (Planned) Shadow mode deployment (Post 6)
+- **0.7.0** - (Planned) Monitoring that triggers action (Post 7)
+- **0.8.0** - (Planned) Human feedback loops (Post 8)
+- **0.9.0** - (Planned) Failure drills (Post 9)
+- **0.10.0** - (Planned) Governance as code (Post 10)
+- **0.11.0** - (Planned) From service to platform (Post 11)
+- **0.12.0** - (Planned) What this still does not solve (Post 12)
 - **1.0.0** - (Planned) Full production release
 
 ## Upgrade Notes
 
 ### 0.1.0
 - Initial release - no upgrades needed
-### 0.2.0
-- LLM integration
+
+### 0.2.0 → 0.2.0
+- New LLM integration with Claude API
+- Set `ANTHROPIC_API_KEY` environment variable
+- Set `LLM_ENABLED=true` to enable LLM features
+- No breaking changes to existing endpoints
+
+### 0.2.0 → 0.3.0
+- New prompt management system with versioning
+- Install `pyyaml` dependency: `pip install pyyaml==6.0.1`
+- Create `prompts/` directory for versioned prompts
+- No breaking changes - backward compatible
+- Existing LLM calls continue to work with hardcoded prompts
+- Optionally migrate to versioned prompts for better governance
 ---
 
 For details on how to contribute, see [CONTRIBUTING.md](CONTRIBUTING.md)

@@ -77,23 +77,28 @@ Complete guide to navigating this codebase.
 
 | File | Purpose | Key Functions |
 |------|---------|--------------|
-| **app/main.py** | FastAPI application | `ingest_note()`, health checks, error handlers |
-| **app/models.py** | Data models | `ClinicalNoteRequest`, `ClinicalNoteResponse` |
+| **app/main.py** | FastAPI application | `ingest_note()`, `summarize_note()`, health checks |
+| **app/models.py** | Data models | `ClinicalNoteRequest`, `SummarizeNoteResponse`, `LLMMetrics` |
 | **app/logging.py** | Audit logging | `log_request()`, `log_response()`, `log_error()` |
 | **app/config.py** | Configuration | `Settings` class, environment variables |
+| **app/llm.py** | LLM service (Post 2) | `summarize_clinical_note()`, retry logic |
+| **app/prompts.py** | Prompt management (Post 3) | `PromptManager`, versioning, integrity |
 
 ### Testing
 
 | File | Purpose | Coverage |
 |------|---------|----------|
-| **tests/test_api.py** | API endpoints | Request validation, responses, errors |
+| **tests/test_api.py** | API endpoints | Request validation, responses, errors, /summarize |
 | **tests/test_logging.py** | Logging system | Audit IDs, privacy controls |
+| **tests/test_llm.py** | LLM service (Post 2) | Retries, costs, validation, errors |
+| **tests/test_prompts.py** | Prompt system (Post 3) | Versioning, integrity, templates, lifecycle |
 
 ### Examples
 
 | File | Purpose |
 |------|---------|
-| **examples/test_client.py** | API client example, usage demonstration |
+| **examples/test_client.py** | API client example, basic usage |
+| **examples/test_summarize.py** | LLM summarization example (Post 2) |
 
 ### Infrastructure
 
@@ -103,6 +108,8 @@ Complete guide to navigating this codebase.
 | **docker-compose.yml** | Container orchestration |
 | **Makefile** | Common tasks automation |
 | **.env.example** | Configuration template |
+| **prompts/** | Versioned prompt files (Post 3) |
+| **verify_prompts.py** | Prompt verification script (Post 3) |
 
 ## 🔍 By Topic
 
@@ -301,21 +308,23 @@ Before deploying or modifying:
 
 - [ ] Read PROJECT_SUMMARY.md
 - [ ] Understand architecture.md
-- [ ] All tests passing (pytest)
+- [ ] All tests passing (79/79 tests)
 - [ ] Code follows style guide
 - [ ] Documentation updated
 - [ ] Security reviewed
 - [ ] Privacy controls verified
 - [ ] Audit trail working
+- [ ] Prompt versioning configured (if using LLM)
+- [ ] Prompt integrity verified
 
 ## 🎯 Remember
 
-**Current Status**: Post 2 completed
+**Current Status**: Post 3 completed
 
 - Foundation is built (Post 1)
 - LLM integration added (Post 2)
-- Prompt versioning is next (Post 3)
-- 10 more posts to complete the series
+- Prompt versioning implemented (Post 3)
+- 9 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -327,8 +336,8 @@ Before deploying or modifying:
 Healthcare AI From Scratch (12-Post Series)
 │
 ├─ ✅ Post 1: Foundation Without AI
-├─ ✅ Post 2: Adding LLMs Without Breaking Things ← YOU ARE HERE
-├─ 📋 Post 3: Prompting as Versioned Code
+├─ ✅ Post 2: Adding LLMs Without Breaking Things
+├─ ✅ Post 3: Prompting as Versioned Code ← YOU ARE HERE
 ├─ 📋 Post 4: Determinism, Variability, and Why Clinicians Notice
 ├─ 📋 Post 5: Building Your First Evaluation Harness
 ├─ 📋 Post 6: Shadow Mode Deployment

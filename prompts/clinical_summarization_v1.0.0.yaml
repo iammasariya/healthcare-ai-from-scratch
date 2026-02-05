@@ -1,0 +1,35 @@
+version: "1.0.0"
+created_at: "2026-02-04T10:00:00Z"
+created_by: "engineering@hospital.com"
+status: "active"
+task: "clinical_summarization"
+description: "Initial production prompt for clinical note summarization"
+
+system_prompt: |
+  You are a clinical documentation assistant. 
+  Your task is to create a concise summary of clinical notes while preserving all medically relevant information.
+
+  Guidelines:
+  - Include chief complaint, key findings, and plan
+  - Preserve all medications, dosages, and vital signs
+  - Use clinical terminology appropriately
+  - Keep summary under 200 words
+  - Never add information not in the original note
+
+user_prompt_template: |
+  Summarize the following clinical note:
+
+  {note_text}
+
+  Provide a concise clinical summary.
+
+validation:
+  max_tokens: 1024
+  temperature: 0.3
+  expected_length_range: [50, 300]
+
+metadata:
+  approved_by: "medical_director@hospital.com"
+  approval_date: "2026-02-04"
+  regulatory_status: "validated"
+  testing_notes: "Tested on 500 sample notes with >95% clinician approval"

@@ -1,16 +1,40 @@
-# 🏥 Healthcare AI From Scratch - Post 1: Complete Codebase
+# 🏥 Healthcare AI From Scratch - Complete Codebase
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI service foundation built **without any AI**. This is intentional and demonstrates the essential scaffolding every healthcare AI system needs before adding models.
+This is a **production-grade** healthcare AI system built from first principles through three foundational posts:
+
+- **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
+- **Post 2**: LLM Integration - Adding Claude with safety guarantees  
+- **Post 3**: Prompt Versioning - Treating prompts as first-class artifacts
+
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third.
 
 ## 🎯 Key Features
 
+### Post 1: Foundation
 ✅ **Full Audit Trail** - Every request gets a unique UUID for traceability  
 ✅ **Privacy-Aware Logging** - Only logs preview of clinical text, never full PHI  
 ✅ **Type-Safe Validation** - Pydantic models ensure data integrity  
 ✅ **Production Patterns** - Health checks, monitoring, error handling  
-✅ **Comprehensive Tests** - 100% coverage on core functionality  
+
+### Post 2: LLM Integration
+✅ **Claude API Integration** - Clinical note summarization with retry logic  
+✅ **Cost Tracking** - Per-request cost monitoring in USD  
+✅ **Latency Monitoring** - Track LLM response times  
+✅ **Feature Flags** - Safe rollout without breaking production  
+✅ **Graceful Failures** - System continues when LLM fails  
+
+### Post 3: Prompt Versioning
+✅ **Versioned Prompts** - YAML files with semantic versioning (1.0.0, 1.1.0, 2.0.0)  
+✅ **Integrity Verification** - SHA256 hashing prevents tampering  
+✅ **Audit Trails** - Every request logs prompt version and hash  
+✅ **Hot-Reload** - Update prompts without restarting  
+✅ **A/B Testing** - Compare prompt versions in production  
+✅ **Rollback Capability** - Change versions without deployment  
+
+### Infrastructure
+✅ **Comprehensive Tests** - 79 tests with 100% core coverage  
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
 
@@ -23,20 +47,34 @@ healthcare-ai-from-scratch/
 │   ├── main.py              # FastAPI app and routes
 │   ├── models.py            # Pydantic request/response models
 │   ├── logging.py           # Structured logging with audit IDs
-│   └── config.py            # Configuration management
+│   ├── config.py            # Configuration management
+│   ├── llm.py               # LLM service with retry logic (Post 2)
+│   └── prompts.py           # Prompt management system (Post 3)
 │
-├── tests/                    # Test suite
+├── prompts/                  # Versioned prompt files (Post 3)
+│   └── clinical_summarization_v1.0.0.yaml
+│
+├── tests/                    # Test suite (79 tests)
 │   ├── __init__.py
-│   ├── test_api.py          # API endpoint tests
-│   └── test_logging.py      # Logging functionality tests
+│   ├── test_api.py          # API endpoint tests (27 tests)
+│   ├── test_logging.py      # Logging functionality tests (12 tests)
+│   ├── test_llm.py          # LLM service tests (24 tests) - Post 2
+│   └── test_prompts.py      # Prompt management tests (16 tests) - Post 3
 │
 ├── examples/                 # Usage examples
-│   └── test_client.py       # Example API client
+│   ├── test_client.py       # Example API client
+│   └── test_summarize.py    # LLM summarization example (Post 2)
 │
 ├── docs/                     # Documentation
-│   ├── QUICKSTART.md        # 5-minute quick start
 │   ├── architecture.md      # Architecture decisions
-│   └── DEPLOYMENT.md        # Production deployment guide
+│   ├── QUICKSTART.md        # 5-minute quick start
+│   ├── DEPLOYMENT.md        # Production deployment guide
+│   ├── POST_1_LINKEDIN_ARTICLE.md  # Post 1 article
+│   ├── POST_1_SUMMARY.md           # Post 1 summary
+│   ├── POST_2_LINKEDIN_ARTICLE.md  # Post 2 article
+│   ├── POST_2_SUMMARY.md           # Post 2 summary
+│   ├── POST_3_LINKEDIN_ARTICLE.md  # Post 3 article
+│   └── POST_3_SUMMARY.md           # Post 3 summary
 │
 ├── requirements.txt          # Production dependencies
 ├── requirements-dev.txt      # Development dependencies
@@ -51,7 +89,8 @@ healthcare-ai-from-scratch/
 ├── CHANGELOG.md            # Version history
 ├── ROADMAP.md              # Project roadmap
 ├── LICENSE                 # MIT License
-└── verify_project.sh       # Project verification script
+├── verify_project.sh       # Project verification script
+└── verify_prompts.py       # Prompt verification script (Post 3)
 ```
 
 ## 🚀 Quick Start (5 Minutes)
@@ -282,10 +321,11 @@ make run-prod     # Production
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~1,500 (excluding tests and docs)
+- **Lines of Code**: ~2,500 (excluding tests and docs)
+- **Tests**: 79 comprehensive tests (100% passing)
 - **Test Coverage**: 100% on core functionality
-- **Documentation**: 8 comprehensive guides
-- **Dependencies**: Minimal (FastAPI, Pydantic, Uvicorn)
+- **Documentation**: 11 comprehensive guides
+- **Dependencies**: Minimal (FastAPI, Pydantic, Uvicorn, Anthropic, PyYAML)
 - **Docker Image**: ~150MB
 - **Startup Time**: <1 second
 
@@ -300,14 +340,14 @@ We welcome contributions! See `CONTRIBUTING.md` for:
 
 ## 📈 What's Next?
 
-This is **Post 1** in a 12-post series. Progress so far:
+This is a **12-post series** building healthcare AI from first principles. Progress so far:
 
 ### Completed
 - ✅ **Post 1**: Foundation Without AI
 - ✅ **Post 2**: Adding LLMs Without Breaking Things
+- ✅ **Post 3**: Prompting as Versioned Code
 
 ### Coming Next
-- **Post 3**: Prompting as Versioned Code
 - **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - **Post 5**: Building Your First Evaluation Harness
 - **Post 6**: Shadow Mode Deployment

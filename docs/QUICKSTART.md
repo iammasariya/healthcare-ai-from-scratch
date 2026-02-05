@@ -1,70 +1,123 @@
-# Quick Start Guide
+# Healthcare AI Service - Quick Start Guide
 
-Get the Healthcare AI Service running in under 5 minutes.
+Get up and running in 5 minutes!
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package installer)
-- Git (for cloning the repository)
+- **Python 3.9+** - Check with `python3 --version`
+- **pip** - Package installer for Python
+- **Git** - For cloning the repository
+- **(Optional) Anthropic API Key** - For LLM features
 
-## Step 1: Clone and Setup
+## Option 1: Automated Setup (Recommended)
+
+We provide an automated setup script that handles everything:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/iammasariya/healthcare-ai-from-scratch.git
 cd healthcare-ai-from-scratch
 
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On macOS/Linux:
-source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+# Run setup script
+chmod +x setup.sh
+./setup.sh
 ```
 
-## Step 2: Run the Service
+The script will:
+- ✓ Check Python version
+- ✓ Create virtual environment
+- ✓ Install dependencies
+- ✓ Create .env file
+- ✓ Run tests to verify
+- ✓ Verify prompt system
+
+**That's it!** Skip to the "Start the Service" section below.
+
+## Option 2: Manual Setup
+
+### 1. Clone and Navigate
 
 ```bash
-# Start the development server
-uvicorn app.main:app --reload
-
-# You should see:
-# INFO:     Uvicorn running on http://127.0.0.1:8000
-# INFO:     Application startup complete.
+git clone https://github.com/iammasariya/healthcare-ai-from-scratch.git
+cd healthcare-ai-from-scratch
 ```
 
-## Step 3: Verify It's Working
+### 2. Create Virtual Environment
 
-Open your browser and visit:
-- **API Docs**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+```bash
+# Create virtual environment
+python3 -m venv venv
 
-You should see the interactive API documentation!
+# Activate it
+# On macOS/Linux:
+source venv/bin/activate
 
-## Step 4: Test the API
+# On Windows:
+venv\Scripts\activate
+```
 
-### Option A: Using the Interactive Docs
+### 3. Install Dependencies
 
-1. Go to http://localhost:8000/docs
-2. Click on "POST /ingest"
-3. Click "Try it out"
-4. Use this example:
-   ```json
-   {
-     "patient_id": "PT-12345",
-     "note_text": "Patient presents with acute onset headache. Vital signs stable."
-   }
-   ```
-5. Click "Execute"
+```bash
+# Upgrade pip
+pip install --upgrade pip
 
-### Option B: Using curl
+# Install production dependencies
+pip install -r requirements.txt
 
+# (Optional) Install development dependencies
+pip install -r requirements-dev.txt
+```
+
+### 4. Configure Environment
+
+```bash
+# Copy example config
+cp .env.example .env
+
+# Edit .env (optional for basic testing)
+# nano .env  # or use your preferred editor
+```
+
+### 5. Verify Installation
+
+```bash
+# Run test suite
+python -m pytest tests/ -v
+
+# Verify prompts
+python verify_prompts.py
+```
+
+## Start the Service
+
+```bash
+# Make sure virtual environment is activated
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Start the development server
+uvicorn app.main:app --reload
+```
+
+You should see:
+```
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000
+```
+
+## Explore the API
+
+### 1. Interactive Documentation
+
+Open your browser to:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### 2. Try the Basic Endpoint
+
+**Using curl:**
 ```bash
 curl -X POST "http://localhost:8000/ingest" \
   -H "Content-Type: application/json" \
@@ -74,142 +127,272 @@ curl -X POST "http://localhost:8000/ingest" \
   }'
 ```
 
-### Option C: Using the Example Client
-
-```bash
-python examples/test_client.py
-```
-
-## Expected Response
-
-You should get a response like:
-
+**Expected Response:**
 ```json
 {
   "audit_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "received_at": "2026-01-27T10:30:45.123456Z",
+  "received_at": "2026-02-04T16:30:00.123456",
   "status": "received",
   "patient_id": "PT-12345"
 }
 ```
 
-## Step 5: Run Tests (Optional)
+### 3. Run Example Scripts
 
 ```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
+# Test basic ingestion (no API key needed)
+python examples/test_client.py
 
-# Run tests
-pytest
+# Test prompt versioning (Post 3, no API key needed)
+python examples/test_prompts.py
 
-# Run tests with coverage
-pytest --cov=app --cov-report=html
+# Test LLM summarization (Post 2, requires API key)
+export ANTHROPIC_API_KEY="your-key-here"
+python examples/test_summarize.py
 ```
 
-## What You Just Built
+## Enable LLM Features (Optional)
 
-You now have a production-grade healthcare service that:
+To use the `/summarize` endpoint with Claude:
 
-✅ Validates clinical note inputs  
-✅ Assigns unique audit IDs  
-✅ Logs all operations (with privacy controls)  
-✅ Returns structured responses  
-✅ Provides interactive API documentation  
-✅ Is ready to extend with AI  
+### 1. Get API Key
 
-## Common Issues
+1. Sign up at https://console.anthropic.com/
+2. Navigate to API Keys
+3. Create a new API key
+4. Copy the key (starts with `sk-ant-`)
+
+### 2. Configure
+
+Edit `.env` file:
+```bash
+# Set your API key
+ANTHROPIC_API_KEY=sk-ant-your-actual-key-here
+
+# Enable LLM features
+LLM_ENABLED=true
+```
+
+### 3. Test LLM Endpoint
+
+```bash
+curl -X POST "http://localhost:8000/summarize" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "patient_id": "PT-12345",
+    "note_text": "Patient presents with acute onset headache. Denies trauma. Vital signs: BP 120/80, HR 72, Temp 98.6F. Neurological exam normal. Assessment: Tension headache. Plan: Acetaminophen 500mg PO PRN."
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "audit_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+  "received_at": "2026-02-04T16:35:00.123456",
+  "status": "completed",
+  "patient_id": "PT-12345",
+  "summary": "Patient with tension headache, treated with acetaminophen...",
+  "llm_metrics": {
+    "model": "claude-3-5-sonnet-20241022",
+    "tokens_used": 145,
+    "latency_ms": 892.5,
+    "cost_usd": 0.00435,
+    "prompt_version": "1.0.0",
+    "prompt_hash": "86b5034ea5aae0ac..."
+  },
+  "error": null
+}
+```
+
+## Explore Prompt Versioning (Post 3)
+
+### View Current Prompts
+
+```bash
+# List prompt files
+ls -la prompts/
+
+# View prompt details
+python examples/test_prompts.py
+```
+
+### Create New Prompt Version
+
+```bash
+# 1. Copy existing prompt
+cp prompts/clinical_summarization_v1.0.0.yaml \
+   prompts/clinical_summarization_v1.1.0.yaml
+
+# 2. Edit the new version
+# Update: version, description, prompts, metadata
+nano prompts/clinical_summarization_v1.1.0.yaml
+
+# 3. Verify new version loads
+python verify_prompts.py
+
+# 4. No restart needed! New version is live
+```
+
+### Use Specific Prompt Version
+
+The LLM service automatically uses the latest active version, but you can specify a version in your code:
+
+```python
+from app.llm import get_llm_service
+
+llm = get_llm_service()
+response, error = llm.summarize_clinical_note(
+    note_text="...",
+    audit_id="...",
+    prompt_version="1.0.0"  # Use specific version
+)
+```
+
+## Common Tasks
+
+### Run Tests
+
+```bash
+# All tests
+pytest
+
+# Specific test file
+pytest tests/test_prompts.py
+
+# With coverage
+pytest --cov=app --cov-report=html
+open htmlcov/index.html
+```
+
+### Check Code Quality
+
+```bash
+# Format code
+black app/ tests/
+
+# Lint code
+flake8 app/ tests/
+
+# Type check
+mypy app/
+```
+
+### View Logs
+
+The application logs to stdout in JSON format. Each log entry includes:
+- `audit_id` - Unique request identifier
+- `timestamp` - ISO 8601 timestamp
+- `event` - Event type
+- `payload_preview` - First 100 chars (privacy-aware)
+
+### Stop the Service
+
+Press `Ctrl+C` in the terminal running uvicorn.
+
+## Troubleshooting
 
 ### Port Already in Use
-
-If you see "Address already in use" error:
 
 ```bash
 # Use a different port
 uvicorn app.main:app --reload --port 8001
 ```
 
-### Module Not Found
-
-If you see "ModuleNotFoundError":
+### Import Errors
 
 ```bash
-# Make sure you're in the project root
 # Make sure virtual environment is activated
+source venv/bin/activate
+
 # Reinstall dependencies
 pip install -r requirements.txt
 ```
 
-### Python Version Too Old
-
-If you see version errors:
+### Tests Failing
 
 ```bash
-# Check Python version
-python --version
+# Check Python version (need 3.9+)
+python3 --version
 
-# Should be 3.9 or higher
-# If not, install a newer Python version
+# Reinstall dev dependencies
+pip install -r requirements-dev.txt
+
+# Run specific failing test for details
+pytest tests/test_prompts.py::TestPromptManager::test_load_single_prompt -v
+```
+
+### LLM Endpoint Returns 503
+
+This means LLM features are disabled. Check:
+
+1. `.env` has `LLM_ENABLED=true`
+2. `ANTHROPIC_API_KEY` is set correctly
+3. Restart the service after changing `.env`
+
+### Prompt Not Found
+
+```bash
+# Verify prompts directory exists
+ls -la prompts/
+
+# Check prompt file exists
+ls -la prompts/clinical_summarization_v1.0.0.yaml
+
+# Verify prompt loads
+python verify_prompts.py
 ```
 
 ## Next Steps
 
-1. **Explore the code**: Start with `app/main.py` and `app/models.py`
-2. **Read the architecture**: See `docs/architecture.md`
-3. **Run the tests**: `pytest -v`
-4. **Modify and experiment**: The foundation is yours to build on
+### Learn More
 
-## Development Tips
+1. **Architecture**: Read `docs/architecture.md`
+2. **Post 1 Article**: Read `docs/POST_1_LINKEDIN_ARTICLE.md`
+3. **Post 2 Article**: Read `docs/POST_2_LINKEDIN_ARTICLE.md`
+4. **Post 3 Article**: Read `docs/POST_3_LINKEDIN_ARTICLE.md`
+5. **Full Roadmap**: Read `ROADMAP.md`
 
-### Auto-reload is your friend
-When running with `--reload`, the server automatically restarts when you change code. This makes development fast.
+### Try Advanced Features
 
-### Use the interactive docs
-http://localhost:8000/docs is invaluable for testing and understanding the API.
+1. **Create Custom Prompts**: Add new prompt files for different tasks
+2. **A/B Test Prompts**: Run multiple versions and compare results
+3. **Monitor Costs**: Track LLM costs per request
+4. **Deploy**: See `docs/DEPLOYMENT.md` for production deployment
 
-### Check the logs
-The service logs all operations. Watch the terminal to see audit IDs and events.
+### Contribute
 
-### Start simple
-Don't add AI yet. Understand this foundation first. Post 2 will add LLMs.
-
-## Docker Deployment (Optional)
-
-If you prefer Docker:
-
-```bash
-# Build and run with Docker Compose
-docker-compose up
-
-# Or build manually
-docker build -t healthcare-ai-service .
-docker run -p 8000:8000 healthcare-ai-service
-```
+See `CONTRIBUTING.md` for contribution guidelines.
 
 ## Getting Help
 
-- **Code issues**: Check the tests in `tests/`
-- **API questions**: See the interactive docs at `/docs`
-- **Architecture**: Read `docs/architecture.md`
-- **Configuration**: Check `.env.example`
+- **Documentation**: Check `docs/` directory
+- **Examples**: See `examples/` directory  
+- **Issues**: Open a GitHub issue
+- **Tests**: Look at test files for usage examples
 
-## What Makes This Production-Grade?
+## Summary of Endpoints
 
-Unlike tutorial code, this includes:
+| Endpoint | Method | Purpose | Requires API Key |
+|----------|--------|---------|------------------|
+| `/` | GET | Service info | No |
+| `/health` | GET | Health check | No |
+| `/docs` | GET | API documentation | No |
+| `/ingest` | POST | Ingest clinical note | No |
+| `/summarize` | POST | Summarize with LLM | Yes |
+| `/metrics` | GET | Basic metrics | No |
 
-- ✅ Comprehensive error handling
-- ✅ Input validation
-- ✅ Structured logging
-- ✅ Health checks
-- ✅ Full test coverage
-- ✅ Docker support
-- ✅ Security considerations
-- ✅ Privacy controls
-- ✅ Documentation
+## What You've Built
 
-This is what real healthcare systems need before adding AI.
+After completing this quickstart, you have:
+
+✅ **Post 1**: Foundation with audit trails and logging  
+✅ **Post 2**: LLM integration with cost tracking  
+✅ **Post 3**: Prompt versioning with governance  
+
+**Next**: Post 4 - Determinism and Variability
 
 ---
 
-**You're ready!** You've built a foundation that outlives any model you'll add later.
+**Questions?** Check `INDEX.md` for navigation help or open an issue.
 
-Next: Post 2 will show how to add LLMs without breaking this structure.
+**Ready for production?** See `docs/DEPLOYMENT.md` for deployment guide.
