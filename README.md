@@ -1,6 +1,6 @@
 # Healthcare AI Service - From First Principles
 
-A production-grade healthcare AI system built from first principles. This project demonstrates building healthcare AI the right way: foundation first, models second, prompt versioning third.
+A production-grade healthcare AI system built from first principles. This project demonstrates building healthcare AI the right way: foundation first, models second, prompt versioning third, variability control fourth.
 
 ## 🎯 Purpose
 
@@ -8,7 +8,8 @@ This is a series on building healthcare AI systems from scratch, starting with t
 
 **Post 1: Foundation Without AI** - Build the system before the model  
 **Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation  
-**Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts (current)
+**Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts  
+**Post 4: Variability Control** - Measure and control model consistency (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
