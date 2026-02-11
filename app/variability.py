@@ -110,13 +110,19 @@ class VariabilityMeasurer:
     
     def calculate_similarity(self, text1: str, text2: str) -> float:
         """
-        Calculate semantic similarity between two texts.
+        Calculate character-level similarity between two texts using difflib.
         
-        Uses sequence matching for now. In production, you might use:
+        IMPORTANT LIMITATION: This measures character-level similarity, NOT semantic
+        similarity. Outputs like "Patient presents with acute headache, denies trauma"
+        and "Headache reported with no history of injury" are clinically identical
+        but will score low (~0.3-0.4). This is best for detecting phrasing changes
+        in otherwise similar text.
+        
+        For semantic similarity, production systems should use:
         - Sentence transformers with cosine similarity
         - BERT score
-        - Rouge scores
-        - Custom clinical similarity metrics
+        - Clinical NLP models
+        - Domain-specific similarity metrics
         
         Args:
             text1: First text to compare
@@ -129,7 +135,7 @@ class VariabilityMeasurer:
             return 0.0
         
         # Use SequenceMatcher for character-level similarity
-        # This is simple but effective for detecting major differences
+        # Simple but effective for detecting major phrasing differences
         matcher = difflib.SequenceMatcher(None, text1, text2)
         return matcher.ratio()
     
@@ -272,6 +278,14 @@ class DeterminismController:
         This allows:
         - Reproducibility: Same inputs → same seed → same output
         - Variation: Different contexts → different seeds
+        
+        IMPORTANT: Seed support varies by LLM provider:
+        - OpenAI: Supports seeds but outputs may vary across API versions
+        - Anthropic (Claude): Does NOT support seeds
+        - Many providers: No seed support
+        
+        For true reproducibility across providers, log the exact model version
+        and API response ID with each request.
         
         Args:
             patient_id: Patient identifier
