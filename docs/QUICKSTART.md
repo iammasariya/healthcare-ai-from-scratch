@@ -388,8 +388,9 @@ After completing this quickstart, you have:
 ✅ **Post 1**: Foundation with audit trails and logging  
 ✅ **Post 2**: LLM integration with cost tracking  
 ✅ **Post 3**: Prompt versioning with governance  
+✅ **Post 4**: Variability measurement and control  
 
-**Next**: Post 4 - Determinism and Variability
+**Next**: Post 5 - Building Your First Evaluation Harness
 
 ---
 

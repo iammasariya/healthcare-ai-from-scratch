@@ -38,7 +38,7 @@ Added Claude-powered clinical note summarization:
 - ✅ Feature flag for safe rollout
 - ✅ Graceful failure handling
 
-### Post 3: Prompt Versioning (Current)
+### Post 3: Prompt Versioning
 Treat prompts as versioned artifacts:
 - ✅ Prompts stored in YAML files with semantic versioning
 - ✅ SHA256 integrity verification
@@ -48,6 +48,22 @@ Treat prompts as versioned artifacts:
 - ✅ Rollback capability without code deployment
 - ✅ Governance metadata (approvals, testing notes)
 - ✅ 16 comprehensive tests for prompt management
+
+### Post 4: Variability Control (Current)
+Measure and control model output variability:
+- ✅ Variability measurement system with comprehensive metrics
+- ✅ Semantic similarity comparison using difflib
+- ✅ Deterministic seed generation from context
+- ✅ Temperature recommendation framework by task/risk
+- ✅ Variability alerting for production monitoring
+- ✅ Acceptability thresholds for clinical use
+- ✅ 34 comprehensive tests for variability measurement
+
+**Key Insights:**
+- Temperature 0.0: Perfect consistency (100% exact match)
+- Temperature 0.3: High consistency (~95% similarity)
+- Temperature 0.7: Significant variability (~60% similarity)
+- Clinicians notice inconsistency - measure and control it
 
 ## 🚀 Quick Start
 
@@ -113,7 +129,9 @@ healthcare-ai-from-scratch/
 │   ├── logging.py       # Structured logging with audit IDs
 │   ├── config.py        # Configuration management
 │   ├── llm.py           # LLM service with retry logic (Post 2)
-│   └── prompts.py       # Prompt management system (Post 3)
+│   ├── llm_litellm.py   # Alternative LiteLLM implementation (Post 2)
+│   ├── prompts.py       # Prompt management system (Post 3)
+│   └── variability.py   # Variability measurement (Post 4)
 ├── prompts/             # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
 ├── tests/
@@ -121,25 +139,31 @@ healthcare-ai-from-scratch/
 │   ├── test_api.py      # API endpoint tests
 │   ├── test_logging.py  # Logging functionality tests
 │   ├── test_llm.py      # LLM service tests (Post 2)
-│   └── test_prompts.py  # Prompt management tests (Post 3)
+│   ├── test_prompts.py  # Prompt management tests (Post 3)
+│   └── test_variability.py  # Variability tests (Post 4)
 ├── examples/
-│   ├── test_client.py   # Example client usage
-│   └── test_summarize.py # LLM summarization example (Post 2)
+│   ├── test_client.py       # Example client usage
+│   ├── test_summarize.py    # LLM summarization example (Post 2)
+│   ├── test_prompts.py      # Prompt versioning example (Post 3)
+│   └── test_variability.py  # Variability measurement example (Post 4)
 ├── docs/
-│   ├── architecture.md         # Architecture decisions
-│   ├── POST_1_LINKEDIN_ARTICLE.md
-│   ├── POST_1_SUMMARY.md
-│   ├── POST_2_LINKEDIN_ARTICLE.md
-│   ├── POST_2_SUMMARY.md
-│   ├── POST_3_LINKEDIN_ARTICLE.md  # Post 3 article
-│   └── POST_3_SUMMARY.md           # Post 3 summary
+│   ├── architecture.md
+│   └── QUICKSTART.md
 ├── .env.example         # Environment variables template
 ├── .gitignore
+├── .coveragerc
 ├── requirements.txt
 ├── requirements-dev.txt
 ├── pytest.ini
 ├── Dockerfile
 ├── docker-compose.yml
+├── Makefile
+├── CHANGELOG.md
+├── ROADMAP.md
+├── PROJECT_SUMMARY.md
+├── INDEX.md
+├── LICENSE
+├── verify_project.sh    # Project verification script
 ├── verify_prompts.py    # Prompt verification script (Post 3)
 └── README.md
 ```
@@ -319,10 +343,10 @@ Before moving to Post 2 (adding LLMs), understand:
 ### Completed
 - [x] **Post 1**: Foundation Without AI
 - [x] **Post 2**: Adding LLMs Without Breaking Things
-- [x] **Post 3**: Prompting as Versioned Code (current)
+- [x] **Post 3**: Prompting as Versioned Code
+- [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice (current)
 
 ### Planned
-- [ ] **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - [ ] **Post 5**: Building Your First Evaluation Harness
 - [ ] **Post 6**: Shadow Mode Deployment
 - [ ] **Post 7**: Monitoring That Triggers Action

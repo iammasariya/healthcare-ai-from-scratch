@@ -83,6 +83,7 @@ Complete guide to navigating this codebase.
 | **app/config.py** | Configuration | `Settings` class, environment variables |
 | **app/llm.py** | LLM service (Post 2) | `summarize_clinical_note()`, retry logic |
 | **app/prompts.py** | Prompt management (Post 3) | `PromptManager`, versioning, integrity |
+| **app/variability.py** | Variability control (Post 4) | `VariabilityMeasurer`, `DeterminismController` |
 
 ### Testing
 
@@ -92,6 +93,7 @@ Complete guide to navigating this codebase.
 | **tests/test_logging.py** | Logging system | Audit IDs, privacy controls |
 | **tests/test_llm.py** | LLM service (Post 2) | Retries, costs, validation, errors |
 | **tests/test_prompts.py** | Prompt system (Post 3) | Versioning, integrity, templates, lifecycle |
+| **tests/test_variability.py** | Variability system (Post 4) | Metrics, similarity, seeds, temperature, alerts |
 
 ### Examples
 
@@ -99,6 +101,8 @@ Complete guide to navigating this codebase.
 |------|---------|
 | **examples/test_client.py** | API client example, basic usage |
 | **examples/test_summarize.py** | LLM summarization example (Post 2) |
+| **examples/test_prompts.py** | Prompt versioning example (Post 3) |
+| **examples/test_variability.py** | Variability measurement example (Post 4) |
 
 ### Infrastructure
 
@@ -308,7 +312,7 @@ Before deploying or modifying:
 
 - [ ] Read PROJECT_SUMMARY.md
 - [ ] Understand architecture.md
-- [ ] All tests passing (79/79 tests)
+- [ ] All tests passing (113/113 tests)
 - [ ] Code follows style guide
 - [ ] Documentation updated
 - [ ] Security reviewed
@@ -319,12 +323,13 @@ Before deploying or modifying:
 
 ## 🎯 Remember
 
-**Current Status**: Post 3 completed
+**Current Status**: Post 4 completed
 
 - Foundation is built (Post 1)
 - LLM integration added (Post 2)
 - Prompt versioning implemented (Post 3)
-- 9 more posts to complete the series
+- Variability control implemented (Post 4)
+- 8 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -337,8 +342,8 @@ Healthcare AI From Scratch (12-Post Series)
 │
 ├─ ✅ Post 1: Foundation Without AI
 ├─ ✅ Post 2: Adding LLMs Without Breaking Things
-├─ ✅ Post 3: Prompting as Versioned Code ← YOU ARE HERE
-├─ 📋 Post 4: Determinism, Variability, and Why Clinicians Notice
+├─ ✅ Post 3: Prompting as Versioned Code
+├─ ✅ Post 4: Determinism, Variability, and Why Clinicians Notice ← YOU ARE HERE
 ├─ 📋 Post 5: Building Your First Evaluation Harness
 ├─ 📋 Post 6: Shadow Mode Deployment
 ├─ 📋 Post 7: Monitoring That Triggers Action
