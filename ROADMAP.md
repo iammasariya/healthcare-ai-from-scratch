@@ -115,40 +115,54 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 
 ---
 
-### 🎯 Post 4: Determinism, Variability, and Why Clinicians Notice
+### ✅ Post 4: Determinism, Variability, and Why Clinicians Notice
 
-**Status**: Planned  
+**Status**: Complete  
 **Goal**: Understand and control model variability in clinical contexts
 
-**What They Learn**:
-- Temperature, randomness, and their impact on trust
-- When variability is harmful vs acceptable
-- How clinicians perceive inconsistency
-- Measuring and controlling output divergence
+**What We Built**:
+- ✅ Variability measurement system with comprehensive metrics
+- ✅ Semantic similarity comparison using difflib
+- ✅ Deterministic seed generation from context
+- ✅ Temperature recommendation framework
+- ✅ Variability alerting system
+- ✅ Acceptability thresholds for clinical use
+- ✅ Output hashing for duplicate detection
+- ✅ Comprehensive test suite (34 tests)
 
-**Planned Features**:
-- [ ] Repeated inference test harness
-- [ ] Output divergence measurement
-- [ ] Temperature tuning experiments
-- [ ] Deterministic mode implementation
-- [ ] Variability metrics and alerting
-- [ ] Seed management for reproducibility
+**Key Learning**: Temperature controls consistency. At temp 0.0, outputs are identical. At temp 0.7, significant divergence occurs. Clinicians notice inconsistency - same note producing different summaries erodes trust.
 
-**Key Learning**: An intuition for when models feel unreliable.
+**Features Implemented**:
+- `VariabilityMeasurer`: Calculates divergence metrics across multiple runs
+- `DeterminismController`: Manages seeds and temperature recommendations
+- Pairwise similarity scoring between outputs
+- Exact match rate and unique output counting
+- Context-aware seed generation (patient ID + version + date)
+- Task/risk-based temperature recommendations
+- Alert detection for concerning variability
 
-**Example Experiments**:
-- Run same prompt 100 times, measure divergence
-- Compare temperature 0.0 vs 0.3 vs 0.7
-- Identify when variability breaks clinical trust
-- Measure semantic similarity of outputs
+**Example Metrics**:
+- Run count and unique output ratio
+- Pairwise similarity (avg, min, max)
+- Exact match rate
+- Length statistics (mean, std dev)
+- Temperature and seed tracking
 
-**Technical Challenges**:
-- Defining "acceptable" variability
-- Measuring semantic divergence
-- Balancing determinism vs creativity
-- Setting temperature by use case
+**Temperature Guidelines**:
+- Extraction/Classification: 0.0-0.1 (deterministic)
+- Clinical summaries: 0.2-0.3 (mostly deterministic)
+- Treatment suggestions: 0.3-0.5 (balanced)
+- Research queries: 0.5-0.7 (creative)
 
-**Outcome**: You understand when and why model outputs diverge, and how to control it.
+**Technical Achievements**:
+- Semantic similarity without heavy dependencies
+- Deterministic but context-aware seed generation
+- Production-ready variability monitoring
+- Clear acceptability thresholds
+
+**Outcome**: You can now measure model consistency, detect problematic variability, and set appropriate temperature parameters for each use case.
+
+**Files**: `app/variability.py`, `tests/test_variability.py`, `examples/test_variability.py`
 
 ---
 

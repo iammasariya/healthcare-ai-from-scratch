@@ -81,6 +81,42 @@ Comprehensive tests for the prompt management system.
 
 **Test Count:** 16 test cases
 
+### `test_variability.py` (NEW - Post 4)
+Comprehensive tests for the variability measurement system.
+
+**Coverage:**
+- `VariabilityMetrics`:
+  - Dataclass creation and attributes
+  - Dictionary serialization
+- `InferenceRun`:
+  - Run tracking with metadata
+  - Timestamp and audit ID handling
+- `VariabilityMeasurer`:
+  - Semantic similarity calculation (difflib-based)
+  - Pairwise similarity measurement
+  - Variability metrics generation
+  - Exact match rate calculation
+  - Unique output counting
+  - Acceptability determination with thresholds
+  - Edge cases (single run, identical outputs, all unique)
+- `DeterminismController`:
+  - Deterministic seed generation from context
+  - Context-aware reproducibility
+  - Temperature recommendations by task type
+  - Temperature recommendations by risk level
+  - Task type validation
+  - Risk level validation
+- Utility Functions:
+  - Output hashing (SHA256)
+  - Hash consistency verification
+  - Variability alert detection
+  - Alert threshold handling
+- Integration Tests:
+  - End-to-end variability measurement workflow
+  - Multiple runs with metrics calculation
+
+**Test Count:** 34 test cases
+
 ## Running Tests
 
 ### Prerequisites
@@ -340,22 +376,47 @@ def test_something(mock_get_service):
 - Multi-task and multi-version support
 - Error handling for missing prompts/variables
 
+### Post 4: Variability Control (COMPLETE)
+
+**New Test File:**
+- `tests/test_variability.py`: 34 tests for variability measurement system
+
+**Coverage:**
+- `VariabilityMetrics`: Dataclass creation and serialization
+- `InferenceRun`: Run tracking and metadata
+- `VariabilityMeasurer`:
+  - Semantic similarity calculation
+  - Pairwise similarity measurement
+  - Variability metrics generation
+  - Acceptability determination
+- `DeterminismController`:
+  - Deterministic seed generation
+  - Context-aware reproducibility
+  - Temperature recommendations by task/risk
+  - Task and risk validation
+- Utility functions:
+  - Output hashing (SHA256)
+  - Variability alert detection
+  - Edge cases and error handling
+- Integration tests: End-to-end workflows
+
 ### Total Test Suite
 
 **Summary:**
-- Total tests: 79
+- Total tests: 113
 - Post 1 tests: 27 (foundation)
 - Post 2 tests: 36 (LLM integration)
 - Post 3 tests: 16 (prompt versioning)
+- Post 4 tests: 34 (variability control)
 - **All tests passing**: ✓
 
 ## Next Steps
 
-For Post 4 (Determinism & Variability), plan tests for:
-- Output divergence measurement
-- Temperature tuning
-- Deterministic mode
-- Variability metrics
+For Post 5 (Evaluation Harness), plan tests for:
+- Golden dataset creation
+- Evaluation metrics
+- Model version comparison
+- Regression detection
 
 ---
 

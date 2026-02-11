@@ -2,13 +2,14 @@
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI system built from first principles through three foundational posts:
+This is a **production-grade** healthcare AI system built from first principles through four foundational posts:
 
 - **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
 - **Post 2**: LLM Integration - Adding Claude with safety guarantees  
 - **Post 3**: Prompt Versioning - Treating prompts as first-class artifacts
+- **Post 4**: Variability Control - Measuring and controlling model consistency
 
-This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third.
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth.
 
 ## 🎯 Key Features
 
@@ -33,8 +34,16 @@ This demonstrates how to build healthcare AI the right way: foundation first, mo
 ✅ **A/B Testing** - Compare prompt versions in production  
 ✅ **Rollback Capability** - Change versions without deployment  
 
+### Post 4: Variability Control
+✅ **Variability Measurement** - Comprehensive metrics for model consistency  
+✅ **Semantic Similarity** - Pairwise comparison using difflib  
+✅ **Deterministic Seeds** - Context-aware reproducibility  
+✅ **Temperature Recommendations** - Task/risk-based guidance  
+✅ **Acceptability Thresholds** - Clinical context determines tolerance  
+✅ **Production Monitoring** - Alert detection for concerning patterns  
+
 ### Infrastructure
-✅ **Comprehensive Tests** - 79 tests with 100% core coverage  
+✅ **Comprehensive Tests** - 113 tests with 100% core coverage
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
 
@@ -54,16 +63,19 @@ healthcare-ai-from-scratch/
 ├── prompts/                  # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
 │
-├── tests/                    # Test suite (79 tests)
+├── tests/                    # Test suite (113 tests)
 │   ├── __init__.py
 │   ├── test_api.py          # API endpoint tests (27 tests)
 │   ├── test_logging.py      # Logging functionality tests (12 tests)
 │   ├── test_llm.py          # LLM service tests (24 tests) - Post 2
-│   └── test_prompts.py      # Prompt management tests (16 tests) - Post 3
+│   ├── test_prompts.py      # Prompt management tests (16 tests) - Post 3
+│   └── test_variability.py  # Variability tests (34 tests) - Post 4
 │
 ├── examples/                 # Usage examples
 │   ├── test_client.py       # Example API client
-│   └── test_summarize.py    # LLM summarization example (Post 2)
+│   ├── test_summarize.py    # LLM summarization example (Post 2)
+│   ├── test_prompts.py      # Prompt versioning example (Post 3)
+│   └── test_variability.py  # Variability measurement example (Post 4)
 │
 ├── docs/                     # Documentation
 │   ├── architecture.md      # Architecture decisions
@@ -74,7 +86,9 @@ healthcare-ai-from-scratch/
 │   ├── POST_2_LINKEDIN_ARTICLE.md  # Post 2 article
 │   ├── POST_2_SUMMARY.md           # Post 2 summary
 │   ├── POST_3_LINKEDIN_ARTICLE.md  # Post 3 article
-│   └── POST_3_SUMMARY.md           # Post 3 summary
+│   ├── POST_3_SUMMARY.md           # Post 3 summary
+│   ├── POST_4_LINKEDIN_ARTICLE.md  # Post 4 article
+│   └── POST_4_SUMMARY.md           # Post 4 summary
 │
 ├── requirements.txt          # Production dependencies
 ├── requirements-dev.txt      # Development dependencies
@@ -321,10 +335,10 @@ make run-prod     # Production
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~2,500 (excluding tests and docs)
-- **Tests**: 79 comprehensive tests (100% passing)
-- **Test Coverage**: 100% on core functionality
-- **Documentation**: 11 comprehensive guides
+- **Lines of Code**: ~3,000 (excluding tests and docs)
+- **Tests**: 113 comprehensive tests (100% passing)
+- **Test Coverage**: >90% on all modules
+- **Documentation**: 17+ comprehensive guides
 - **Dependencies**: Minimal (FastAPI, Pydantic, Uvicorn, Anthropic, PyYAML)
 - **Docker Image**: ~150MB
 - **Startup Time**: <1 second
@@ -346,9 +360,9 @@ This is a **12-post series** building healthcare AI from first principles. Progr
 - ✅ **Post 1**: Foundation Without AI
 - ✅ **Post 2**: Adding LLMs Without Breaking Things
 - ✅ **Post 3**: Prompting as Versioned Code
+- ✅ **Post 4**: Determinism, Variability, and Why Clinicians Notice
 
 ### Coming Next
-- **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - **Post 5**: Building Your First Evaluation Harness
 - **Post 6**: Shadow Mode Deployment
 - **Post 7**: Monitoring That Triggers Action
