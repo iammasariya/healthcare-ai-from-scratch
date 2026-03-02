@@ -24,7 +24,7 @@ wheels/
 venv/
 env/
 ENV/
-.venv
+.venv/
 
 # IDE
 .vscode/
@@ -37,13 +37,23 @@ ENV/
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
 *.cover
 .hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# Evaluation results
+evaluation_results/
+helm_output/
+.helm_cache/
 
 # Environment
 .env
 .env.local
+.env.*
+!.env.example
 
 # Logs
 *.log
@@ -70,12 +80,7 @@ Thumbs.db
 # asdf
 .tool-versions
 
-# Documentation (LinkedIn articles, summaries)
+# Internal / non-public docs
 docs/POST_*_LINKEDIN_ARTICLE.md
 docs/POST_*_SUMMARY.md
 docs/DEPLOYMENT.md
-docs/QUICKSTART.md
-CHANGELOG.md
-CONTRIBUTING.md
-PROJECT_SUMMARY.md
-INDEX.md

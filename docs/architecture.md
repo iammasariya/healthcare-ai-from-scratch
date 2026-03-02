@@ -250,15 +250,36 @@ Added LLM capabilities while keeping the foundation intact:
 
 The foundation remained unchanged. That's the point.
 
-### Post 3: Prompting as Versioned Code (Planned)
-Will add prompt management:
-- Prompt versioning system
-- A/B testing infrastructure
-- Rollback mechanisms
-- Template management
+### Post 3: Prompting as Versioned Code (Completed)
+Added prompt management system:
+- ✅ YAML-based prompt storage with semantic versioning
+- ✅ SHA256 integrity verification
+- ✅ Hot-reload without service restart
+- ✅ A/B testing infrastructure
+- ✅ Rollback capability
+- ✅ Template rendering with variables
+- ✅ Governance metadata (approvals, testing notes)
 
-### Beyond Post 3
-The series continues through Post 12, covering evaluation, deployment, monitoring, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
+### Post 4: Variability Control (Completed)
+Added model consistency measurement:
+- ✅ Variability measurement system
+- ✅ Semantic similarity calculation (difflib-based)
+- ✅ Deterministic seed generation from context
+- ✅ Temperature recommendations by task/risk
+- ✅ Acceptability thresholds for clinical use
+- ✅ Variability alerting for production monitoring
+
+### Post 5: Evaluation Harness (Completed)
+Added systematic model evaluation:
+- ✅ Golden dataset management (JSON-based, version-controlled)
+- ✅ Evaluation framework with exact and fuzzy matching
+- ✅ Regression detection with automated alerts
+- ✅ Model version comparison
+- ✅ CI/CD integration (JSON output)
+- ✅ Stanford HELM integration (optional)
+
+### Beyond Post 5
+The series continues through Post 12, covering shadow mode deployment, monitoring, human feedback, failure drills, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
 
 Each post builds on this foundation without breaking it.
 
