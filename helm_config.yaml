@@ -1,0 +1,150 @@
+# HELM Configuration Example
+# 
+# This configures HELM to evaluate our clinical summarization model
+# See: https://github.com/stanford-crfm/helm
+#
+# Usage:
+#   helm-run --conf-paths helm_config.yaml
+#   helm-summarize --suite clinical_suite
+
+# Define run specs for evaluation
+run_specs:
+  # Clinical summarization with our custom model
+  - name: clinical_summarization_custom
+    scenario_spec:
+      class_name: "app.helm_adapter.ClinicalSummarizationScenario"
+      args:
+        dataset_path: "evaluation_datasets/clinical_summarization_golden.json"
+    
+    adapter_spec:
+      method: generation
+      instructions: "Summarize the following clinical note concisely:"
+      max_tokens: 200
+      temperature: 0.3
+    
+    model: custom-clinical-model
+    
+    metric_specs:
+      # Basic metrics
+      - name: exact_match
+      - name: f1_score
+      
+      # Summarization metrics (if HELM has the packages)
+      # - name: rouge
+      #   args:
+      #     rouge_types: ["rouge1", "rouge2", "rougeL"]
+      
+      # Semantic similarity (requires sentence-transformers)
+      # - name: bert_score
+      #   args:
+      #     model_type: "microsoft/deberta-base-mnli"
+      
+      # Efficiency metrics
+      - name: tokens_cost
+      - name: inference_runtime
+
+  # Compare with Claude baseline (if you have API access)
+  # - name: clinical_summarization_claude
+  #   scenario_spec:
+  #     class_name: "app.helm_adapter.ClinicalSummarizationScenario"
+  #   adapter_spec:
+  #     method: generation
+  #     temperature: 0.3
+  #   model: anthropic/claude-3-sonnet-20240229
+  #   metric_specs:
+  #     - name: exact_match
+  #     - name: f1_score
+  #     - name: tokens_cost
+
+# Define evaluation suites
+suites:
+  - name: clinical_suite
+    description: "Clinical note summarization evaluation"
+    run_groups:
+      - name: custom_model
+        runs:
+          - clinical_summarization_custom
+      
+      # Uncomment to compare with baseline
+      # - name: baseline_comparison
+      #   runs:
+      #     - clinical_summarization_custom
+      #     - clinical_summarization_claude
+
+# HELM configuration
+helm_config:
+  # Where to store results
+  output_path: "helm_output"
+  
+  # Cache settings
+  cache_dir: ".helm_cache"
+  
+  # Parallelization
+  max_eval_instances: 100
+  num_threads: 4
+  
+  # Cost controls (important!)
+  max_cost_usd: 10.0  # Stop if costs exceed this
+  
+  # Logging
+  log_level: "INFO"
+
+# Model configurations
+models:
+  - name: custom-clinical-model
+    description: "Our custom clinical LLM service"
+    # Model is registered via app/helm_adapter.py
+    # No API key needed - uses our existing LLM service
+  
+  # Example: Claude baseline (requires API key)
+  # - name: anthropic/claude-3-sonnet-20240229
+  #   api_key_env: ANTHROPIC_API_KEY
+  #   max_tokens: 200
+  #   temperature: 0.3
+
+# Metrics configuration
+metrics:
+  exact_match:
+    normalize: true  # Case-insensitive, whitespace-normalized
+  
+  f1_score:
+    tokenization: "space"  # Simple word tokenization
+  
+  # tokens_cost:
+  #   # Configure cost per token if using paid APIs
+  #   input_cost_per_token: 0.000003
+  #   output_cost_per_token: 0.000015
+
+# Evaluation settings
+evaluation:
+  # How to split dataset
+  train_split: 0.0  # We use all examples for evaluation
+  eval_split: 1.0
+  
+  # Reproducibility
+  random_seed: 42
+  
+  # Quality controls
+  validate_references: true
+  require_all_metrics: false  # Don't fail if some metrics unavailable
+
+# Advanced settings
+advanced:
+  # Enable/disable features
+  enable_caching: true
+  enable_metrics_caching: true
+  
+  # Debugging
+  debug_mode: false
+  save_intermediate_results: true
+  
+  # Resource limits
+  timeout_seconds: 300
+  max_retries: 3
+
+# Notes:
+# 1. Uncomment sections as needed
+# 2. Configure API keys via environment variables
+# 3. Adjust cost limits for your budget
+# 4. See HELM docs for all available metrics
+# 5. Start with basic metrics, add advanced ones later

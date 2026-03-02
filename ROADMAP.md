@@ -166,26 +166,21 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 
 ---
 
-### 🎯 Post 5: Building Your First Evaluation Harness
+### ✅ Post 5: Building Your First Evaluation Harness
 
-**Status**: Planned  
+**Status**: Complete  
 **Goal**: Implement real evaluation infrastructure, not notebooks
 
-**What They Learn**:
-- Why accuracy is insufficient for healthcare
-- Task-specific evaluation metrics
-- Building labeled datasets
-- Comparing model versions systematically
+**What We Built**:
+- ✅ Golden dataset creation and management
+- ✅ Exact-match and fuzzy-match metrics
+- ✅ Evaluation framework with configurable thresholds
+- ✅ Model version comparison framework
+- ✅ Regression detection with automated alerts
+- ✅ CI/CD-ready evaluation (JSON-based results)
+- ✅ 26 comprehensive tests
 
-**Planned Features**:
-- [ ] Golden dataset creation and management
-- [ ] Exact-match metrics implementation
-- [ ] Heuristic evaluation rules
-- [ ] Model version comparison framework
-- [ ] Regression detection
-- [ ] Evaluation CI/CD integration
-
-**Key Learning**: A real evaluation pipeline, not a notebook.
+**Key Learning**: Evaluation as production code enables safe iteration and deployment.
 
 **Example Evaluations**:
 - Summarization: completeness, accuracy, brevity

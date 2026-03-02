@@ -9,7 +9,8 @@ This is a series on building healthcare AI systems from scratch, starting with t
 **Post 1: Foundation Without AI** - Build the system before the model  
 **Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation  
 **Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts  
-**Post 4: Variability Control** - Measure and control model consistency (current)
+**Post 4: Variability Control** - Measure and control model consistency  
+**Post 5: Evaluation Harness** - Systematic model evaluation and regression detection (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
@@ -50,7 +51,7 @@ Treat prompts as versioned artifacts:
 - ✅ Governance metadata (approvals, testing notes)
 - ✅ 16 comprehensive tests for prompt management
 
-### Post 4: Variability Control (Current)
+### Post 4: Variability Control
 Measure and control model output variability:
 - ✅ Variability measurement system with comprehensive metrics
 - ✅ Semantic similarity comparison using difflib
@@ -65,6 +66,22 @@ Measure and control model output variability:
 - Temperature 0.3: High consistency (~95% similarity)
 - Temperature 0.7: Significant variability (~60% similarity)
 - Clinicians notice inconsistency - measure and control it
+
+### Post 5: Evaluation Harness (Current)
+Systematic model evaluation and regression detection:
+- ✅ Golden dataset management (JSON-based, version-controlled)
+- ✅ Evaluation framework with exact and fuzzy matching
+- ✅ Regression detection with automated alerts
+- ✅ Model version comparison
+- ✅ CI/CD integration (JSON output)
+- ✅ MedHELM / HELM integration (optional)
+- ✅ 26 comprehensive tests for evaluation system
+
+**Key Capabilities:**
+- Answer "Is model v2 better than v1?" with data
+- Automated regression detection gates deployments
+- Evaluation as code, not notebooks
+- Optional MedHELM / HELM integration for research-grade metrics
 
 ## 🚀 Quick Start
 
@@ -132,24 +149,33 @@ healthcare-ai-from-scratch/
 │   ├── llm.py           # LLM service with retry logic (Post 2)
 │   ├── llm_litellm.py   # Alternative LiteLLM implementation (Post 2)
 │   ├── prompts.py       # Prompt management system (Post 3)
-│   └── variability.py   # Variability measurement (Post 4)
+│   ├── variability.py   # Variability measurement (Post 4)
+│   ├── evaluation.py    # Evaluation harness (Post 5)
+│   └── helm_adapter.py  # MedHELM / HELM integration (Post 5, optional)
 ├── prompts/             # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
+├── evaluation_datasets/ # Golden datasets (Post 5)
+│   └── clinical_summarization_golden.json
 ├── tests/
 │   ├── __init__.py
 │   ├── test_api.py      # API endpoint tests
 │   ├── test_logging.py  # Logging functionality tests
 │   ├── test_llm.py      # LLM service tests (Post 2)
 │   ├── test_prompts.py  # Prompt management tests (Post 3)
-│   └── test_variability.py  # Variability tests (Post 4)
+│   ├── test_variability.py  # Variability tests (Post 4)
+│   └── test_evaluation.py   # Evaluation tests (Post 5)
 ├── examples/
 │   ├── test_client.py       # Example client usage
 │   ├── test_summarize.py    # LLM summarization example (Post 2)
 │   ├── test_prompts.py      # Prompt versioning example (Post 3)
-│   └── test_variability.py  # Variability measurement example (Post 4)
+│   ├── test_variability.py  # Variability measurement example (Post 4)
+│   ├── test_evaluation.py   # Evaluation demo (Post 5)
+│   └── helm_evaluation_example.py  # Hybrid evaluation (Post 5)
+├── scripts/
+│   └── compare_evaluators.py  # Compare built-in vs MedHELM / HELM (Post 5)
 ├── docs/
-│   ├── architecture.md
-│   └── QUICKSTART.md
+│   ├── QUICKSTART.md
+│   └── architecture.md
 ├── .env.example         # Environment variables template
 ├── .gitignore
 ├── .coveragerc
@@ -282,6 +308,13 @@ pytest tests/test_api.py
 pytest -v
 ```
 
+## 📘 Learn The System
+
+- `README.md` - product overview, API surface, and how the pieces fit together
+- `docs/QUICKSTART.md` - setup and first run
+- `docs/architecture.md` - architecture and design decisions
+- `examples/test_evaluation.py` - runnable Post 5 demonstration with regression detection
+
 ## 🐳 Docker Deployment
 
 ```bash
@@ -345,10 +378,10 @@ Before moving to Post 2 (adding LLMs), understand:
 - [x] **Post 1**: Foundation Without AI
 - [x] **Post 2**: Adding LLMs Without Breaking Things
 - [x] **Post 3**: Prompting as Versioned Code
-- [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice (current)
+- [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice
+- [x] **Post 5**: Building Your First Evaluation Harness (current)
 
 ### Planned
-- [ ] **Post 5**: Building Your First Evaluation Harness
 - [ ] **Post 6**: Shadow Mode Deployment
 - [ ] **Post 7**: Monitoring That Triggers Action
 - [ ] **Post 8**: Human Feedback Without Burning Clinicians
@@ -373,3 +406,7 @@ MIT License - See LICENSE file for details
 ## 🙏 Acknowledgments
 
 Built for healthcare engineers who want to do AI right, not fast.
+
+## Disclaimer
+
+This work represents independent professional experience and is not affiliated with any prior employer or specific institutional project.

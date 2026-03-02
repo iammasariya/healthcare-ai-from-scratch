@@ -347,17 +347,16 @@ python verify_prompts.py
 ### Learn More
 
 1. **Architecture**: Read `docs/architecture.md`
-2. **Post 1 Article**: Read `docs/POST_1_LINKEDIN_ARTICLE.md`
-3. **Post 2 Article**: Read `docs/POST_2_LINKEDIN_ARTICLE.md`
-4. **Post 3 Article**: Read `docs/POST_3_LINKEDIN_ARTICLE.md`
-5. **Full Roadmap**: Read `ROADMAP.md`
+2. **Examples**: Run the scripts in `examples/`
+3. **Tests**: Read `tests/` for executable behavior
+4. **Full Roadmap**: Read `ROADMAP.md`
 
 ### Try Advanced Features
 
 1. **Create Custom Prompts**: Add new prompt files for different tasks
 2. **A/B Test Prompts**: Run multiple versions and compare results
 3. **Monitor Costs**: Track LLM costs per request
-4. **Deploy**: See `docs/DEPLOYMENT.md` for production deployment
+4. **Evaluate Changes**: Run `python examples/test_evaluation.py`
 
 ### Contribute
 
@@ -389,11 +388,12 @@ After completing this quickstart, you have:
 ✅ **Post 2**: LLM integration with cost tracking  
 ✅ **Post 3**: Prompt versioning with governance  
 ✅ **Post 4**: Variability measurement and control  
+✅ **Post 5**: Evaluation harness with golden datasets  
 
-**Next**: Post 5 - Building Your First Evaluation Harness
+**Next**: Post 6 - Shadow Mode Deployment
 
 ---
 
 **Questions?** Check `INDEX.md` for navigation help or open an issue.
 
-**Ready for production?** See `docs/DEPLOYMENT.md` for deployment guide.
+**Ready for the next topic?** Continue with `ROADMAP.md`.

@@ -41,15 +41,6 @@ Complete guide to navigating this codebase.
 - Testing the API
 - Troubleshooting
 
-#### Deploy to Production
-→ **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
-- Pre-deployment checklist
-- Environment configuration
-- Deployment options (Docker, AWS, GCP, Azure)
-- Monitoring setup
-- Security hardening
-- Scaling strategies
-
 #### Contribute Code
 → **[CONTRIBUTING.md](CONTRIBUTING.md)**
 - Development workflow
@@ -84,6 +75,8 @@ Complete guide to navigating this codebase.
 | **app/llm.py** | LLM service (Post 2) | `summarize_clinical_note()`, retry logic |
 | **app/prompts.py** | Prompt management (Post 3) | `PromptManager`, versioning, integrity |
 | **app/variability.py** | Variability control (Post 4) | `VariabilityMeasurer`, `DeterminismController` |
+| **app/evaluation.py** | Evaluation harness (Post 5) | `Evaluator`, `GoldenDataset`, `RegressionDetector` |
+| **app/helm_adapter.py** | HELM integration (Post 5) | `ClinicalModel`, HELM adapter (optional) |
 
 ### Testing
 
@@ -94,6 +87,7 @@ Complete guide to navigating this codebase.
 | **tests/test_llm.py** | LLM service (Post 2) | Retries, costs, validation, errors |
 | **tests/test_prompts.py** | Prompt system (Post 3) | Versioning, integrity, templates, lifecycle |
 | **tests/test_variability.py** | Variability system (Post 4) | Metrics, similarity, seeds, temperature, alerts |
+| **tests/test_evaluation.py** | Evaluation harness (Post 5) | Golden datasets, evaluation metrics, regression detection |
 
 ### Examples
 
@@ -103,6 +97,8 @@ Complete guide to navigating this codebase.
 | **examples/test_summarize.py** | LLM summarization example (Post 2) |
 | **examples/test_prompts.py** | Prompt versioning example (Post 3) |
 | **examples/test_variability.py** | Variability measurement example (Post 4) |
+| **examples/test_evaluation.py** | Evaluation demo (Post 5) |
+| **examples/helm_evaluation_example.py** | Hybrid evaluation with HELM (Post 5) |
 
 ### Infrastructure
 
@@ -131,7 +127,7 @@ Complete guide to navigating this codebase.
 - Docs: `docs/architecture.md` - "Privacy by Design"
 
 **HIPAA Considerations**
-- Overview: `docs/DEPLOYMENT.md` - "Compliance Documentation"
+- Overview: `README.md` - production-minded healthcare AI foundation
 - Future: `ROADMAP.md` - "Post 5: Privacy, Security, and Compliance"
 
 ### API Design
@@ -149,7 +145,7 @@ Complete guide to navigating this codebase.
 **Health Checks**
 - Implementation: `app/main.py` - `/health` endpoint
 - Usage: `docker-compose.yml` - healthcheck
-- Docs: `docs/DEPLOYMENT.md` - "Health Checks"
+- Docs: `README.md` - health checks and API surface
 
 ### Testing
 
@@ -174,17 +170,15 @@ Complete guide to navigating this codebase.
 - Definition: `Dockerfile`
 - Compose: `docker-compose.yml`
 - Run: `docker-compose up`
-- Docs: `docs/DEPLOYMENT.md` - "Docker"
+- Docs: `README.md` - Docker quick start
 
 **Cloud Platforms**
-- AWS: `docs/DEPLOYMENT.md` - "AWS ECS/Fargate"
-- GCP: `docs/DEPLOYMENT.md` - "Google Cloud Run"
-- Azure: `docs/DEPLOYMENT.md` - "Azure Container Instances"
+- Docker: `README.md` - container build and run
+- Compose: `README.md` - local multi-container setup
 
 **Production**
-- Checklist: `docs/DEPLOYMENT.md` - "Pre-Deployment Checklist"
-- Security: `docs/DEPLOYMENT.md` - "Security Hardening"
-- Monitoring: `docs/DEPLOYMENT.md` - "Monitoring & Logging"
+- Checklist: `README.md` - security and operations sections
+- Monitoring: `README.md` - logging and observability overview
 
 ## 📋 Quick Reference
 
@@ -253,7 +247,7 @@ make lint
 ### Path 3: Production Deployment (1 day)
 
 1. Complete Path 2
-2. Study **docs/DEPLOYMENT.md** thoroughly
+2. Study **README.md** sections on Docker, logging, and security
 3. Set up Docker deployment
 4. Configure monitoring
 5. Review security checklist
@@ -312,7 +306,7 @@ Before deploying or modifying:
 
 - [ ] Read PROJECT_SUMMARY.md
 - [ ] Understand architecture.md
-- [ ] All tests passing (113/113 tests)
+- [ ] All tests passing (139/139 tests)
 - [ ] Code follows style guide
 - [ ] Documentation updated
 - [ ] Security reviewed
@@ -320,16 +314,18 @@ Before deploying or modifying:
 - [ ] Audit trail working
 - [ ] Prompt versioning configured (if using LLM)
 - [ ] Prompt integrity verified
+- [ ] Evaluation harness configured (if using golden datasets)
 
 ## 🎯 Remember
 
-**Current Status**: Post 4 completed
+**Current Status**: Post 5 completed
 
 - Foundation is built (Post 1)
 - LLM integration added (Post 2)
 - Prompt versioning implemented (Post 3)
 - Variability control implemented (Post 4)
-- 8 more posts to complete the series
+- Evaluation harness implemented (Post 5)
+- 7 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -343,8 +339,8 @@ Healthcare AI From Scratch (12-Post Series)
 ├─ ✅ Post 1: Foundation Without AI
 ├─ ✅ Post 2: Adding LLMs Without Breaking Things
 ├─ ✅ Post 3: Prompting as Versioned Code
-├─ ✅ Post 4: Determinism, Variability, and Why Clinicians Notice ← YOU ARE HERE
-├─ 📋 Post 5: Building Your First Evaluation Harness
+├─ ✅ Post 4: Determinism, Variability, and Why Clinicians Notice
+├─ ✅ Post 5: Building Your First Evaluation Harness ← YOU ARE HERE
 ├─ 📋 Post 6: Shadow Mode Deployment
 ├─ 📋 Post 7: Monitoring That Triggers Action
 ├─ 📋 Post 8: Human Feedback Without Burning Clinicians

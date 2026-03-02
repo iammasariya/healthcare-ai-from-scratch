@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-02-16T08:36:00Z",
+  "total_examples": 5,
+  "description": "Golden dataset for evaluating clinical summarization models",
+  "examples": [
+    {
+      "id": "sum-001",
+      "input_text": "Patient is a 45-year-old female presenting to the emergency department with acute onset chest pain radiating to the left arm. Pain started 2 hours ago while at rest. Patient reports associated nausea and diaphoresis. Past medical history significant for hypertension and hyperlipidemia. Current medications include lisinopril 10mg daily and atorvastatin 40mg daily. Vital signs: BP 145/92, HR 98, RR 18, Temp 98.6F, SpO2 98% on room air. Physical exam reveals mild diaphoresis, clear lung sounds bilaterally, regular heart rhythm without murmurs. EKG shows ST elevation in leads II, III, and aVF consistent with inferior STEMI.",
+      "expected_output": "45yo F with HTN and hyperlipidemia presents with acute chest pain radiating to left arm x2 hours at rest, associated with nausea and diaphoresis. Vital signs stable. EKG shows inferior STEMI (ST elevation in II, III, aVF). On lisinopril and atorvastatin.",
+      "task_type": "summarization",
+      "metadata": {
+        "difficulty": "medium",
+        "clinical_specialty": "emergency_medicine",
+        "source": "simulated_ehr",
+        "priority": "high"
+      },
+      "created_at": "2026-02-16T08:36:00Z",
+      "created_by": "clinical_reviewer_1"
+    },
+    {
+      "id": "sum-002",
+      "input_text": "72-year-old male with past medical history of COPD, coronary artery disease status post CABG 5 years ago, and type 2 diabetes mellitus presents to clinic for routine follow-up. Patient reports stable dyspnea on exertion, no chest pain. Last echocardiogram 6 months ago showed EF 45%. HbA1c today 7.2%. Patient compliant with medications: metformin 1000mg twice daily, aspirin 81mg daily, metoprolol 50mg twice daily, lisinopril 20mg daily, atorvastatin 80mg daily, tiotropium inhaler daily, and albuterol inhaler as needed. Physical exam unremarkable. Reviewed importance of medication compliance and scheduled cardiology follow-up in 6 months.",
+      "expected_output": "72yo M with COPD, CAD s/p CABG, DM2 for routine follow-up. Reports stable DOE, no chest pain. EF 45% (6mo ago), HbA1c 7.2%. Compliant with meds (metformin, ASA, metoprolol, lisinopril, atorvastatin, tiotropium, albuterol PRN). PE unremarkable. Counseled on compliance, cardiology f/u in 6mo.",
+      "task_type": "summarization",
+      "metadata": {
+        "difficulty": "medium",
+        "clinical_specialty": "primary_care",
+        "source": "simulated_ehr",
+        "priority": "medium"
+      },
+      "created_at": "2026-02-16T08:36:00Z",
+      "created_by": "clinical_reviewer_1"
+    },
+    {
+      "id": "sum-003",
+      "input_text": "Patient is a 28-year-old previously healthy female presenting with 3 days of fever, productive cough with yellow-green sputum, and pleuritic chest pain. Denies recent travel or sick contacts. No known drug allergies. Vital signs: Temperature 101.8F, BP 118/72, HR 92, RR 20, SpO2 94% on room air. Physical exam reveals decreased breath sounds and crackles in right lower lobe. Chest X-ray demonstrates right lower lobe infiltrate consistent with pneumonia. Started on azithromycin 500mg daily for 5 days. Patient counseled on return precautions and scheduled for follow-up in 1 week.",
+      "expected_output": "28yo F, previously healthy, presents with 3 days fever, productive cough (yellow-green sputum), pleuritic chest pain. No travel/sick contacts. Temp 101.8F, SpO2 94% RA. PE: decreased breath sounds, crackles RLL. CXR: RLL infiltrate consistent with pneumonia. Started azithromycin 500mg x5 days. Return precautions discussed, f/u 1 week.",
+      "task_type": "summarization",
+      "metadata": {
+        "difficulty": "easy",
+        "clinical_specialty": "primary_care",
+        "source": "simulated_ehr",
+        "priority": "medium"
+      },
+      "created_at": "2026-02-16T08:36:00Z",
+      "created_by": "clinical_reviewer_2"
+    },
+    {
+      "id": "sum-004",
+      "input_text": "85-year-old female with dementia, hypertension, and osteoarthritis transferred from nursing home for altered mental status. Per nursing home staff, patient has been more confused over past 2 days with decreased oral intake. No fever documented at facility. Medications include donepezil, amlodipine, and acetaminophen as needed. Vital signs: BP 98/62, HR 104, RR 22, Temp 98.2F, SpO2 91% on room air. Physical exam reveals dry mucous membranes, decreased skin turgor. Labs show Na 152, Cr 1.8 (baseline 1.0), BUN 45. Urinalysis positive for leukocyte esterase and nitrites. Diagnosed with dehydration and urinary tract infection. Started IV fluids and ceftriaxone. Admitted for further management.",
+      "expected_output": "85yo F with dementia, HTN, OA from NH with altered mental status x2 days, decreased PO intake. Afebrile. On donepezil, amlodipine, acetaminophen PRN. VS: BP 98/62, HR 104, SpO2 91% RA. PE: dry mucous membranes, decreased skin turgor. Labs: Na 152, Cr 1.8 (baseline 1.0), BUN 45. UA: + LE/nitrites. Dx: dehydration and UTI. Started IVF and ceftriaxone, admitted.",
+      "task_type": "summarization",
+      "metadata": {
+        "difficulty": "hard",
+        "clinical_specialty": "hospital_medicine",
+        "source": "simulated_ehr",
+        "priority": "high"
+      },
+      "created_at": "2026-02-16T08:36:00Z",
+      "created_by": "clinical_reviewer_2"
+    },
+    {
+      "id": "sum-005",
+      "input_text": "16-year-old male presents to urgent care with right ankle pain after inverting ankle while playing basketball 2 hours ago. Reports immediate pain and swelling. Able to bear weight with difficulty. No previous ankle injuries. Vital signs within normal limits. Physical exam reveals swelling and tenderness over lateral malleolus, mild ecchymosis. Range of motion limited by pain. Negative Ottawa Ankle Rules. X-ray shows no fracture. Diagnosed with Grade 2 lateral ankle sprain. Treated with ice, compression wrap, crutches. Prescribed ibuprofen 400mg three times daily as needed. Advised rest, ice, compression, elevation (RICE). Follow-up with orthopedics if not improving in 1 week.",
+      "expected_output": "16yo M with right ankle pain after inversion injury playing basketball 2hr ago. Immediate pain/swelling, able to bear weight with difficulty. No prior injuries. VS WNL. PE: swelling, tenderness lateral malleolus, mild ecchymosis, ROM limited by pain. Ottawa negative. XR: no fracture. Dx: Grade 2 lateral ankle sprain. Tx: ice, compression, crutches, ibuprofen 400mg TID PRN. Advised RICE. F/u ortho if not improving in 1 week.",
+      "task_type": "summarization",
+      "metadata": {
+        "difficulty": "easy",
+        "clinical_specialty": "urgent_care",
+        "source": "simulated_ehr",
+        "priority": "low"
+      },
+      "created_at": "2026-02-16T08:36:00Z",
+      "created_by": "clinical_reviewer_1"
+    }
+  ]
+}

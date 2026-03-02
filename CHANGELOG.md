@@ -281,10 +281,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned for Post 5
-- Evaluation harness implementation
-- Golden dataset creation
-- Regression detection
+### Planned for Post 6
+- Shadow mode deployment
+- Dual-path request handling
+- Output comparison logging
+
+---
+
+## [0.5.0] - 2026-02-16
+
+### Added - Post 5: Evaluation Harness
+- **Golden Dataset Management**: JSON-based test example storage
+- **Evaluation Framework**: Systematic model performance measurement
+- **Regression Detection**: Automated version comparison
+- **26 New Tests**: Comprehensive test coverage (Total: 139 tests)
+
+### Files Added
+- `app/evaluation.py` - Core evaluation harness (500+ lines)
+- `tests/test_evaluation.py` - 26 comprehensive tests
+- `examples/test_evaluation.py` - Working demonstration
+- `evaluation_datasets/clinical_summarization_golden.json` - Sample dataset
+- `docs/POST_5_LINKEDIN_ARTICLE.md` - Publication-ready article
+- `docs/POST_5_SUMMARY.md` - Technical summary
 
 ### Future Enhancements
 - Database integration for persistence

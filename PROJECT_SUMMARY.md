@@ -2,14 +2,15 @@
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI system built from first principles through four foundational posts:
+This is a **production-grade** healthcare AI system built from first principles through five foundational posts:
 
 - **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
 - **Post 2**: LLM Integration - Adding Claude with safety guarantees  
 - **Post 3**: Prompt Versioning - Treating prompts as first-class artifacts
 - **Post 4**: Variability Control - Measuring and controlling model consistency
+- **Post 5**: Evaluation Harness - Systematic model evaluation and regression detection
 
-This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth.
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth.
 
 ## 🎯 Key Features
 
@@ -42,8 +43,16 @@ This demonstrates how to build healthcare AI the right way: foundation first, mo
 ✅ **Acceptability Thresholds** - Clinical context determines tolerance  
 ✅ **Production Monitoring** - Alert detection for concerning patterns  
 
+### Post 5: Evaluation Harness
+✅ **Golden Dataset Management** - JSON-based, version-controlled test examples  
+✅ **Evaluation Framework** - Exact and fuzzy matching metrics  
+✅ **Regression Detection** - Automated alerts for quality degradation  
+✅ **Model Comparison** - Data-driven version comparison  
+✅ **CI/CD Integration** - JSON output for automated pipelines  
+✅ **HELM Integration** - Optional Stanford HELM for research-grade metrics  
+
 ### Infrastructure
-✅ **Comprehensive Tests** - 113 tests with 100% core coverage
+✅ **Comprehensive Tests** - 139 tests with 100% core coverage
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
 
@@ -77,18 +86,9 @@ healthcare-ai-from-scratch/
 │   ├── test_prompts.py      # Prompt versioning example (Post 3)
 │   └── test_variability.py  # Variability measurement example (Post 4)
 │
-├── docs/                     # Documentation
+├── docs/                     # Curated learning docs
 │   ├── architecture.md      # Architecture decisions
-│   ├── QUICKSTART.md        # 5-minute quick start
-│   ├── DEPLOYMENT.md        # Production deployment guide
-│   ├── POST_1_LINKEDIN_ARTICLE.md  # Post 1 article
-│   ├── POST_1_SUMMARY.md           # Post 1 summary
-│   ├── POST_2_LINKEDIN_ARTICLE.md  # Post 2 article
-│   ├── POST_2_SUMMARY.md           # Post 2 summary
-│   ├── POST_3_LINKEDIN_ARTICLE.md  # Post 3 article
-│   ├── POST_3_SUMMARY.md           # Post 3 summary
-│   ├── POST_4_LINKEDIN_ARTICLE.md  # Post 4 article
-│   └── POST_4_SUMMARY.md           # Post 4 summary
+│   └── QUICKSTART.md        # 5-minute quick start
 │
 ├── requirements.txt          # Production dependencies
 ├── requirements-dev.txt      # Development dependencies
@@ -185,9 +185,8 @@ docker run -p 8000:8000 healthcare-ai-service
 1. **Start Here**: `README.md` - Project overview and quick start
 2. **5-Min Setup**: `docs/QUICKSTART.md` - Get running fast
 3. **Understanding It**: `docs/architecture.md` - How it works and why
-4. **Going to Prod**: `docs/DEPLOYMENT.md` - Production deployment
-5. **Contributing**: `CONTRIBUTING.md` - How to contribute
-6. **What's Next**: `ROADMAP.md` - Future plans (Post 2+)
+4. **Contributing**: `CONTRIBUTING.md` - How to contribute
+5. **What's Next**: `ROADMAP.md` - Future plans
 
 ## 🔑 Core Concepts
 
@@ -361,9 +360,9 @@ This is a **12-post series** building healthcare AI from first principles. Progr
 - ✅ **Post 2**: Adding LLMs Without Breaking Things
 - ✅ **Post 3**: Prompting as Versioned Code
 - ✅ **Post 4**: Determinism, Variability, and Why Clinicians Notice
+- ✅ **Post 5**: Building Your First Evaluation Harness
 
 ### Coming Next
-- **Post 5**: Building Your First Evaluation Harness
 - **Post 6**: Shadow Mode Deployment
 - **Post 7**: Monitoring That Triggers Action
 - **Post 8**: Human Feedback Without Burning Clinicians
