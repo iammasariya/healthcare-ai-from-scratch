@@ -499,3 +499,120 @@ class TestSummarizeEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "completed"
+
+
+class TestShadowModeEndpoint:
+    """Tests for /shadow/summarize endpoint (Post 6)."""
+
+    def test_shadow_mode_disabled(self, client):
+        from unittest.mock import patch
+
+        request = {
+            "patient_id": "patient-001",
+            "note_text": "Clinical note",
+            "source_system": "internal",
+        }
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.llm_enabled = True
+            mock_settings.shadow_mode_enabled = False
+
+            response = client.post("/shadow/summarize", json=request)
+
+        assert response.status_code == 503
+
+    def test_shadow_mode_success_with_hapi_fhir_bundle(self, client):
+        from unittest.mock import patch, Mock
+
+        request = {
+            "patient_id": "patient-001",
+            "source_system": "hapi-fhir-r4",
+            "fhir_bundle": {
+                "resourceType": "Bundle",
+                "type": "collection",
+                "entry": [
+                    {
+                        "resource": {
+                            "resourceType": "Patient",
+                            "name": [{"given": ["Alicia"], "family": "Lopez"}],
+                            "gender": "female",
+                            "birthDate": "1981-04-10",
+                        }
+                    },
+                    {
+                        "resource": {
+                            "resourceType": "Observation",
+                            "code": {"text": "Hemoglobin A1c"},
+                            "valueQuantity": {"value": 8.2, "unit": "%"},
+                        }
+                    },
+                ],
+            },
+        }
+
+        mock_result = Mock()
+        mock_result.source_system = "hapi-fhir-r4"
+        mock_result.source_format = "hapi_fhir_bundle"
+        mock_result.note_text = "Patient: Alicia Lopez; gender: female; birthDate: 1981-04-10. Observation: Hemoglobin A1c 8.2 %."
+        mock_result.production_response = Mock(
+            content="Production summary",
+            model="prod-model",
+            tokens_used=120,
+            latency_ms=900.0,
+            cost_usd=0.01,
+            prompt_version="1.0.0",
+            prompt_hash="abc123",
+        )
+        mock_result.production_error = None
+        mock_result.shadow_response = Mock(
+            content="Shadow summary",
+            model="shadow-model",
+            tokens_used=125,
+            latency_ms=950.0,
+            cost_usd=0.011,
+            prompt_version="1.1.0",
+            prompt_hash="def456",
+        )
+        mock_result.shadow_error = None
+        mock_result.similarity_score = 0.82
+        mock_result.divergent = False
+        mock_result.review_required = False
+        mock_result.recommendation = "Shadow output is within acceptable similarity (0.820)"
+        mock_result.alert_triggered = False
+        mock_result.alert_severity = "none"
+        mock_result.alert_message = "Shadow output is within configured thresholds"
+        mock_result.rollout_recommendation = Mock(
+            total_runs_considered=5,
+            divergent_runs=0,
+            divergence_rate=0.0,
+            avg_similarity=0.82,
+            recommended_traffic_percentage=50,
+            decision="advance",
+            reason="Candidate is ready for a broader staged rollout",
+        )
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.llm_enabled = True
+            mock_settings.shadow_mode_enabled = True
+
+            with patch("app.main.shadow_runner") as mock_runner:
+                mock_runner.run_llm_shadow.return_value = mock_result
+
+                response = client.post("/shadow/summarize", json=request)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "completed"
+        assert data["source_format"] == "hapi_fhir_bundle"
+        assert data["similarity_score"] == 0.82
+        assert data["rollout_decision"]["recommended_traffic_percentage"] == 50
+        assert data["alert"]["severity"] == "none"
+
+    def test_shadow_mode_bad_request_for_missing_input_source(self, client):
+        request = {
+            "patient_id": "patient-001",
+            "source_system": "hapi-fhir-r4",
+        }
+
+        response = client.post("/shadow/summarize", json=request)
+        assert response.status_code == 422

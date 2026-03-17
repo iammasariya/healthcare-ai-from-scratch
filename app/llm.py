@@ -407,13 +407,22 @@ Provide a concise clinical summary."""
 _llm_service: Optional[LLMService] = None
 
 
-def get_llm_service() -> LLMService:
+def get_llm_service(
+    api_key: Optional[str] = None,
+    config: Optional[LLMConfig] = None,
+    force_new: bool = False,
+) -> LLMService:
     """
-    Get or create global LLM service instance.
+    Get or create LLM service instance.
     
-    Uses singleton pattern to reuse HTTP connections.
+    Uses a singleton for the default production path and allows explicit
+    per-call overrides for shadow candidates.
     """
     global _llm_service
+
+    if force_new or api_key is not None or config is not None:
+        return LLMService(api_key=api_key, config=config)
+
     if _llm_service is None:
         _llm_service = LLMService()
     return _llm_service

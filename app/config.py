@@ -6,6 +6,7 @@ environment variable support.
 """
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from typing import Optional
 import logging
 
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
     
     # Application settings
     app_name: str = "Healthcare AI Service"
-    app_version: str = "0.1.0"
+    app_version: str = "0.6.0"
     debug: bool = False
     
     # API settings
@@ -54,12 +55,44 @@ class Settings(BaseSettings):
     llm_temperature: float = 0.3
     llm_timeout: float = 30.0
     llm_max_retries: int = 2
+
+    # Shadow mode settings (Post 6)
+    shadow_mode_enabled: bool = False
+    shadow_write_results: bool = True
+    shadow_results_dir: str = "shadow_results"
+    shadow_similarity_threshold: float = 0.35
+    shadow_alert_similarity_threshold: float = 0.25
+    shadow_promotion_min_requests: int = 5
+    shadow_promotion_min_avg_similarity: float = 0.55
+    shadow_promotion_max_divergence_rate: float = 0.20
+    shadow_candidate_model: str = "claude-3-5-sonnet-20241022"
+    shadow_candidate_temperature: float = 0.2
+    shadow_candidate_prompt_version: Optional[str] = None
+    shadow_promote_full_threshold: float = 0.90
+    shadow_promote_broad_threshold: float = 0.80
+    shadow_promote_limited_threshold: float = 0.70
+
+    # HAPI FHIR settings for clinical examples (Post 6)
+    hapi_fhir_base_url: Optional[str] = None
+    hapi_fhir_timeout_seconds: int = 10
     
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False
     )
+
+    @field_validator("debug", mode="before")
+    @classmethod
+    def normalize_debug_value(cls, value):
+        """Accept common deployment strings for debug mode."""
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            if normalized in {"release", "prod", "production"}:
+                return False
+            if normalized in {"dev", "development"}:
+                return True
+        return value
     
     def get_log_level(self) -> int:
         """Convert string log level to logging constant."""

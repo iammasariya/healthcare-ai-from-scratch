@@ -46,6 +46,7 @@ htmlcov/
 
 # Evaluation results
 evaluation_results/
+shadow_results/
 helm_output/
 .helm_cache/
 

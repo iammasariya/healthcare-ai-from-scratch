@@ -27,7 +27,13 @@ Tests for API endpoints covering Post 1, Post 2, and Post 3 functionality.
 - Audit trail maintenance
 - Long note handling
 
-**Test Count:** 27 test cases
+**Post 6 Tests (NEW):**
+- `/shadow/summarize` endpoint with shadow mode
+- Feature flag behavior (SHADOW_MODE_ENABLED)
+- Successful shadow execution with HAPI FHIR bundle
+- Missing input source validation
+
+**Test Count:** 31 test cases
 
 ### `test_llm.py` (NEW - Post 2)
 Comprehensive tests for the LLM service layer.
@@ -403,12 +409,13 @@ def test_something(mock_get_service):
 ### Total Test Suite
 
 **Summary:**
-- Total tests: 139
+- Total tests: 150
 - Post 1 tests: 27 (foundation)
 - Post 2 tests: 36 (LLM integration)
 - Post 3 tests: 16 (prompt versioning)
 - Post 4 tests: 34 (variability control)
 - Post 5 tests: 26 (evaluation harness)
+- Post 6 tests: 11 (shadow mode: 8 unit + 3 API)
 - **All tests passing**: ✓
 
 ## Post 5: Evaluation Harness (COMPLETE)
@@ -423,13 +430,22 @@ def test_something(mock_get_service):
 - `RegressionDetector`: Version comparison and regression detection
 - Error handling and edge cases
 
-## Next Steps
+## Post 6: Shadow Mode (COMPLETE)
 
-For Post 6 (Shadow Mode), plan tests for:
-- Shadow mode infrastructure
-- Dual-path request handling
-- Output comparison
-- Divergence detection
+**New Test File:**
+- `tests/test_shadow.py`: 8 tests for shadow mode
+
+**Coverage:**
+- HAPI FHIR bundle to clinical note conversion
+- Empty bundle validation (ValueError)
+- Divergence detection with dissimilar outputs
+- Similar output acceptance
+- FHIR bundle input through runner
+- Rollout recommendation logic (hold/advance)
+- HAPI FHIR client bundle assembly
+
+**Updated Test File:**
+- `tests/test_api.py`: Added 3 tests for `/shadow/summarize` endpoint (disabled, success, bad request)
 
 ---
 

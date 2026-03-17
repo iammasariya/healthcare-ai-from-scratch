@@ -198,9 +198,9 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 
 ---
 
-### 🎯 Post 6: Shadow Mode Deployment
+### ✅ Post 6: Shadow Mode Deployment
 
-**Status**: Planned  
+**Status**: Complete  
 **Goal**: Learn to deploy safely using shadow mode patterns
 
 **What They Learn**:
@@ -209,13 +209,16 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 - Comparing shadow vs live behavior
 - When to graduate from shadow
 
-**Planned Features**:
-- [ ] Shadow mode infrastructure
-- [ ] Dual-path request handling
-- [ ] Output comparison logging
-- [ ] Divergence alerting
-- [ ] Promotion criteria
-- [ ] Gradual rollout controls
+**What We Built**:
+- [x] Shadow mode comparison utilities
+- [x] HAPI FHIR bundle to clinical note conversion for realistic examples
+- [x] Divergence scoring and promotion recommendations
+- [x] Dual-path request handling in the API layer
+- [x] Output comparison logging
+- [x] Divergence alerting
+- [x] Promotion criteria
+- [x] Gradual rollout controls
+- [x] Initial test coverage and runnable examples
 
 **Key Learning**: The system learns before users do.
 
@@ -226,13 +229,18 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 4. Measure divergence and quality
 5. Graduate to production if passing thresholds
 
+**HAPI FHIR Example Direction**:
+- Build shadow-mode requests from `Patient`, `Observation`, `Condition`, and `MedicationRequest`
+- Convert realistic FHIR bundles into note-like context before inference
+- Compare production vs candidate summaries on the same structured payload
+
 **Technical Challenges**:
 - Running dual inference efficiently
 - Storing shadow outputs
 - Defining promotion criteria
 - Handling increased latency
 
-**Outcome**: You can deploy with confidence, testing in production without risk.
+**Outcome**: You can deploy a candidate model in shadow mode, compare it safely against production behavior, and use realistic HAPI FHIR-backed clinical context to guide promotion decisions.
 
 ---
 

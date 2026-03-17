@@ -379,6 +379,7 @@ See `CONTRIBUTING.md` for contribution guidelines.
 | `/ingest` | POST | Ingest clinical note | No |
 | `/summarize` | POST | Summarize with LLM | Yes |
 | `/metrics` | GET | Basic metrics | No |
+| `/shadow/summarize` | POST | Shadow mode dual-path | Yes |
 
 ## What You've Built
 
@@ -389,8 +390,9 @@ After completing this quickstart, you have:
 ✅ **Post 3**: Prompt versioning with governance  
 ✅ **Post 4**: Variability measurement and control  
 ✅ **Post 5**: Evaluation harness with golden datasets  
+✅ **Post 6**: Shadow mode with rollout controls and HAPI FHIR examples  
 
-**Next**: Post 6 - Shadow Mode Deployment
+**Next**: Post 7 - Monitoring That Triggers Action
 
 ---
 

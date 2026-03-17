@@ -279,12 +279,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Temperature and seed values
 - Alert triggers for concerning patterns
 
-## [Unreleased]
+## [0.6.0] - 2026-03-02
 
-### Planned for Post 6
-- Shadow mode deployment
-- Dual-path request handling
-- Output comparison logging
+### Added - Post 6: Shadow Mode Deployment
+- **Shadow Mode Runner**: Dual-path execution comparing production and candidate models side by side
+- **HAPI FHIR Client**: Minimal client for fetching patient context from open HAPI FHIR servers
+- **FHIR Bundle Parser**: Convert HAPI FHIR Bundles (Patient, Encounter, Condition, Observation, MedicationRequest) into clinical note text
+- **Divergence Detection**: Automatic flagging when shadow output diverges from production using Post 5's fuzzy match metric
+- **Rollout Recommendations**: Data-driven promotion algorithm with tiered traffic percentages (10%/25%/50%/100%)
+- **Alert System**: Critical and warning severity alerts for shadow failures and low similarity
+- **Result Persistence**: JSON-based shadow run history for rollout analysis
+- **Shadow Rollout Report**: CLI script to summarize saved shadow runs and print promotion recommendations
+- **11 New Tests**: 8 shadow unit tests + 3 API endpoint tests (Total: 150 tests)
+
+### Files Added
+- `app/shadow.py` - Shadow mode service (590+ lines)
+- `tests/test_shadow.py` - 8 comprehensive shadow mode tests
+- `examples/test_shadow_mode.py` - Demo with inline HAPI FHIR bundle
+- `examples/test_shadow_hapi_server.py` - Demo against live HAPI FHIR server
+- `scripts/shadow_rollout_report.py` - CLI rollout report
+
+### Files Modified
+- `app/config.py` - Shadow mode and HAPI FHIR settings
+- `app/models.py` - ShadowModeRequest, ShadowModeResponse, RolloutDecision models
+- `app/main.py` - `/shadow/summarize` endpoint
+- `tests/test_api.py` - 3 new shadow endpoint tests
+- `.env.example` - Shadow mode and HAPI FHIR environment variables
+
+### New Configuration
+- `SHADOW_MODE_ENABLED` - Feature flag for shadow mode (default: false)
+- `SHADOW_CANDIDATE_MODEL` - Model for the candidate path
+- `SHADOW_CANDIDATE_TEMPERATURE` - Temperature for candidate inference
+- `SHADOW_SIMILARITY_THRESHOLD` - Minimum similarity before flagging divergence
+- `SHADOW_ALERT_SIMILARITY_THRESHOLD` - Critical alert threshold
+- `SHADOW_PROMOTION_MIN_REQUESTS` - Minimum runs before promotion decisions
+- `HAPI_FHIR_BASE_URL` - Optional HAPI FHIR server URL
+- `HAPI_FHIR_TIMEOUT_SECONDS` - FHIR request timeout
 
 ---
 
@@ -322,8 +352,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **0.2.0** - LLM integration (Post 2) ✅
 - **0.3.0** - Prompt versioning (Post 3) ✅
 - **0.4.0** - Determinism and variability (Post 4) ✅
-- **0.5.0** - (Planned) Evaluation harness (Post 5)
-- **0.6.0** - (Planned) Shadow mode deployment (Post 6)
+- **0.5.0** - Evaluation harness (Post 5) ✅
+- **0.6.0** - Shadow mode deployment (Post 6) ✅
 - **0.7.0** - (Planned) Monitoring that triggers action (Post 7)
 - **0.8.0** - (Planned) Human feedback loops (Post 8)
 - **0.9.0** - (Planned) Failure drills (Post 9)
@@ -358,6 +388,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No breaking changes - backward compatible
 - Existing code continues to work unchanged
 - Optionally use variability tools for consistency monitoring
+
+### 0.4.0 → 0.5.0
+- New evaluation harness with golden dataset management
+- New module `app/evaluation.py` available for import
+- No breaking changes - backward compatible
+
+### 0.5.0 → 0.6.0
+- New shadow mode deployment with dual-path execution
+- Set `SHADOW_MODE_ENABLED=true` to enable shadow mode
+- Optionally set `HAPI_FHIR_BASE_URL` for FHIR-based inputs
+- Configure `SHADOW_CANDIDATE_MODEL` to compare different models
+- No breaking changes - backward compatible
+- New endpoint: `POST /shadow/summarize`
 
 ---
 

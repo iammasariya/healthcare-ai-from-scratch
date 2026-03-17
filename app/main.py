@@ -22,11 +22,16 @@ from app.models import (
     SummarizeNoteResponse,
     LLMMetrics,
     HealthResponse,
-    ErrorResponse
+    ErrorResponse,
+    ShadowModeRequest,
+    ShadowModeResponse,
+    ShadowModeAlert,
+    RolloutDecision,
 )
 from app.logging import log_request, log_response, log_error
 from app.config import settings
 from app.llm import get_llm_service, LLMService
+from app.shadow import ShadowModeRunner, build_llm_metrics
 
 
 @asynccontextmanager
@@ -59,7 +64,7 @@ app = FastAPI(
     - Type-safe request/response validation
     - Production-ready error handling
     
-    **This is Post 1**: We build the foundation without any AI.
+    **Post 6**: Shadow mode deployment with dual-path execution and HAPI FHIR support.
     """,
     lifespan=lifespan,
     docs_url="/docs",
@@ -74,6 +79,8 @@ app.add_middleware(
     allow_methods=settings.cors_allow_methods,
     allow_headers=settings.cors_allow_headers,
 )
+
+shadow_runner = ShadowModeRunner()
 
 
 @app.middleware("http")
@@ -393,6 +400,161 @@ async def metrics() -> Dict[str, Any]:
         "uptime": "See container metrics",
         "requests": "See middleware/logging"
     }
+
+
+@app.post(
+    "/shadow/summarize",
+    response_model=ShadowModeResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Shadow Mode"],
+    summary="Run production and candidate summaries in shadow mode",
+    description="""
+    Execute production and candidate summarization paths side by side.
+
+    This endpoint demonstrates Post 6 concepts:
+    - Safe dual-path execution
+    - HAPI FHIR sourced clinical context
+    - Divergence scoring and alerting
+    - Gradual rollout recommendations
+    """
+)
+async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeResponse:
+    """
+    Run a shadow-mode comparison for a single request.
+
+    The candidate output is never returned to an end user in production
+    rollout patterns. Here it is returned because this codebase is intended
+    to teach and verify the shadow-mode mechanics explicitly.
+    """
+    if not settings.llm_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM functionality is not enabled. Set LLM_ENABLED=true to enable."
+        )
+
+    if not settings.shadow_mode_enabled:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Shadow mode is not enabled. Set SHADOW_MODE_ENABLED=true to enable."
+        )
+
+    audit_id = log_request(
+        request.model_dump(),
+        metadata={"source_system": request.source_system, "shadow_mode": True},
+    )
+    received_at = datetime.utcnow()
+
+    try:
+        result = shadow_runner.run_llm_shadow(
+            patient_id=request.patient_id,
+            audit_id=str(audit_id),
+            source_system=request.source_system,
+            note_text=request.note_text,
+            fhir_bundle=request.fhir_bundle,
+            hapi_fhir_base_url=request.hapi_fhir_base_url,
+            candidate_prompt_version=request.candidate_prompt_version,
+        )
+
+        log_response(
+            audit_id,
+            status="shadow_completed",
+            metadata={
+                "similarity_score": result.similarity_score,
+                "divergent": result.divergent,
+                "alert_triggered": result.alert_triggered,
+                "recommended_traffic_percentage": (
+                    result.rollout_recommendation.recommended_traffic_percentage
+                ),
+            },
+        )
+
+        return ShadowModeResponse(
+            audit_id=audit_id,
+            received_at=received_at,
+            status="completed" if not (result.production_error or result.shadow_error) else "failed",
+            patient_id=request.patient_id,
+            source_system=result.source_system,
+            source_format=result.source_format,
+            note_text=result.note_text,
+            production_summary=(
+                result.production_response.content if result.production_response else None
+            ),
+            shadow_summary=result.shadow_response.content if result.shadow_response else None,
+            production_metrics=(
+                LLMMetrics(**build_llm_metrics(result.production_response))
+                if result.production_response else None
+            ),
+            shadow_metrics=(
+                LLMMetrics(**build_llm_metrics(result.shadow_response))
+                if result.shadow_response else None
+            ),
+            similarity_score=result.similarity_score,
+            divergent=result.divergent,
+            review_required=result.review_required,
+            recommendation=result.recommendation,
+            alert=ShadowModeAlert(
+                alert_triggered=result.alert_triggered,
+                severity=result.alert_severity,
+                message=result.alert_message,
+            ),
+            rollout_decision=RolloutDecision(
+                total_runs_considered=result.rollout_recommendation.total_runs_considered,
+                divergent_runs=result.rollout_recommendation.divergent_runs,
+                divergence_rate=result.rollout_recommendation.divergence_rate,
+                avg_similarity=result.rollout_recommendation.avg_similarity,
+                recommended_traffic_percentage=(
+                    result.rollout_recommendation.recommended_traffic_percentage
+                ),
+                decision=result.rollout_recommendation.decision,
+                reason=result.rollout_recommendation.reason,
+            ),
+            error=result.production_error or result.shadow_error,
+        )
+
+    except ValueError as e:
+        error_msg = str(e)
+        log_error(audit_id, "ShadowModeConfigurationError", error_msg)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=error_msg
+        )
+
+    except Exception as e:
+        error_msg = f"Unexpected error during shadow execution: {str(e)}"
+        log_error(audit_id, "ShadowModeExecutionError", error_msg)
+
+        return ShadowModeResponse(
+            audit_id=audit_id,
+            received_at=received_at,
+            status="failed",
+            patient_id=request.patient_id,
+            source_system=request.source_system,
+            source_format="unknown",
+            note_text=request.note_text or "",
+            production_summary=None,
+            shadow_summary=None,
+            production_metrics=None,
+            shadow_metrics=None,
+            similarity_score=None,
+            divergent=True,
+            review_required=True,
+            recommendation="Shadow execution failed before comparison",
+            alert=ShadowModeAlert(
+                alert_triggered=True,
+                severity="critical",
+                message=error_msg,
+            ),
+            rollout_decision=RolloutDecision(
+                total_runs_considered=0,
+                divergent_runs=0,
+                divergence_rate=0.0,
+                avg_similarity=0.0,
+                recommended_traffic_percentage=0,
+                decision="hold",
+                reason="Shadow execution failed",
+            ),
+            error=error_msg,
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover
