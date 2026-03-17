@@ -76,6 +76,7 @@ Complete guide to navigating this codebase.
 | **app/prompts.py** | Prompt management (Post 3) | `PromptManager`, versioning, integrity |
 | **app/variability.py** | Variability control (Post 4) | `VariabilityMeasurer`, `DeterminismController` |
 | **app/evaluation.py** | Evaluation harness (Post 5) | `Evaluator`, `GoldenDataset`, `RegressionDetector` |
+| **app/shadow.py** | Shadow mode (Post 6) | `ShadowModeRunner`, `HAPIFHIRClient`, `ShadowResultStore` |
 | **app/helm_adapter.py** | HELM integration (Post 5) | `ClinicalModel`, HELM adapter (optional) |
 
 ### Testing
@@ -98,6 +99,8 @@ Complete guide to navigating this codebase.
 | **examples/test_prompts.py** | Prompt versioning example (Post 3) |
 | **examples/test_variability.py** | Variability measurement example (Post 4) |
 | **examples/test_evaluation.py** | Evaluation demo (Post 5) |
+| **examples/test_shadow_mode.py** | Shadow mode demo with inline HAPI FHIR bundle (Post 6) |
+| **examples/test_shadow_hapi_server.py** | Shadow mode demo against a live HAPI FHIR server (Post 6) |
 | **examples/helm_evaluation_example.py** | Hybrid evaluation with HELM (Post 5) |
 
 ### Infrastructure
@@ -110,6 +113,7 @@ Complete guide to navigating this codebase.
 | **.env.example** | Configuration template |
 | **prompts/** | Versioned prompt files (Post 3) |
 | **verify_prompts.py** | Prompt verification script (Post 3) |
+| **scripts/shadow_rollout_report.py** | Summarize saved shadow runs (Post 6) |
 
 ## 🔍 By Topic
 
@@ -306,7 +310,7 @@ Before deploying or modifying:
 
 - [ ] Read PROJECT_SUMMARY.md
 - [ ] Understand architecture.md
-- [ ] All tests passing (139/139 tests)
+- [ ] All tests passing (150/150 tests)
 - [ ] Code follows style guide
 - [ ] Documentation updated
 - [ ] Security reviewed
@@ -318,14 +322,15 @@ Before deploying or modifying:
 
 ## 🎯 Remember
 
-**Current Status**: Post 5 completed
+**Current Status**: Post 6 completed
 
 - Foundation is built (Post 1)
 - LLM integration added (Post 2)
 - Prompt versioning implemented (Post 3)
 - Variability control implemented (Post 4)
 - Evaluation harness implemented (Post 5)
-- 7 more posts to complete the series
+- Shadow mode deployment implemented (Post 6)
+- 6 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -340,8 +345,8 @@ Healthcare AI From Scratch (12-Post Series)
 ├─ ✅ Post 2: Adding LLMs Without Breaking Things
 ├─ ✅ Post 3: Prompting as Versioned Code
 ├─ ✅ Post 4: Determinism, Variability, and Why Clinicians Notice
-├─ ✅ Post 5: Building Your First Evaluation Harness ← YOU ARE HERE
-├─ 📋 Post 6: Shadow Mode Deployment
+├─ ✅ Post 5: Building Your First Evaluation Harness
+├─ ✅ Post 6: Shadow Mode Deployment ← YOU ARE HERE
 ├─ 📋 Post 7: Monitoring That Triggers Action
 ├─ 📋 Post 8: Human Feedback Without Burning Clinicians
 ├─ 📋 Post 9: Failure Drills for AI Systems

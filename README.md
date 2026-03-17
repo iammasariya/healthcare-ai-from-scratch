@@ -10,7 +10,8 @@ This is a series on building healthcare AI systems from scratch, starting with t
 **Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation  
 **Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts  
 **Post 4: Variability Control** - Measure and control model consistency  
-**Post 5: Evaluation Harness** - Systematic model evaluation and regression detection (current)
+**Post 5: Evaluation Harness** - Systematic model evaluation and regression detection
+**Post 6: Shadow Mode** - Safe model rollout with dual-path execution and HAPI FHIR (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
@@ -83,6 +84,15 @@ Systematic model evaluation and regression detection:
 - Evaluation as code, not notebooks
 - Optional MedHELM / HELM integration for research-grade metrics
 
+### Post 6: Shadow Mode Deployment (Current)
+Safe rollout foundations for candidate models:
+- ✅ Shadow-mode comparison service for production vs candidate outputs
+- ✅ Divergence scoring built on the Post 5 evaluator
+- ✅ Gradual rollout recommendations from recent shadow runs
+- ✅ HAPI FHIR bundle support for realistic clinical context
+- ✅ `/shadow/summarize` endpoint for dual-path execution
+- ✅ 5 shadow-mode tests plus API coverage
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -151,6 +161,7 @@ healthcare-ai-from-scratch/
 │   ├── prompts.py       # Prompt management system (Post 3)
 │   ├── variability.py   # Variability measurement (Post 4)
 │   ├── evaluation.py    # Evaluation harness (Post 5)
+│   ├── shadow.py        # Shadow mode utilities (Post 6 foundation)
 │   └── helm_adapter.py  # MedHELM / HELM integration (Post 5, optional)
 ├── prompts/             # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
@@ -163,16 +174,20 @@ healthcare-ai-from-scratch/
 │   ├── test_llm.py      # LLM service tests (Post 2)
 │   ├── test_prompts.py  # Prompt management tests (Post 3)
 │   ├── test_variability.py  # Variability tests (Post 4)
-│   └── test_evaluation.py   # Evaluation tests (Post 5)
+│   ├── test_evaluation.py   # Evaluation tests (Post 5)
+│   └── test_shadow.py       # Shadow mode tests (Post 6 foundation)
 ├── examples/
 │   ├── test_client.py       # Example client usage
 │   ├── test_summarize.py    # LLM summarization example (Post 2)
 │   ├── test_prompts.py      # Prompt versioning example (Post 3)
 │   ├── test_variability.py  # Variability measurement example (Post 4)
 │   ├── test_evaluation.py   # Evaluation demo (Post 5)
+│   ├── test_shadow_mode.py  # Shadow mode demo with HAPI FHIR (Post 6 foundation)
+│   ├── test_shadow_hapi_server.py  # Live HAPI FHIR demo (Post 6)
 │   └── helm_evaluation_example.py  # Hybrid evaluation (Post 5)
 ├── scripts/
-│   └── compare_evaluators.py  # Compare built-in vs MedHELM / HELM (Post 5)
+│   ├── compare_evaluators.py  # Compare built-in vs MedHELM / HELM (Post 5)
+│   └── shadow_rollout_report.py  # Summarize saved shadow runs (Post 6)
 ├── docs/
 │   ├── QUICKSTART.md
 │   └── architecture.md
@@ -292,6 +307,35 @@ Health check endpoint for monitoring.
 }
 ```
 
+### POST /shadow/summarize (Post 6: Shadow Mode)
+
+Run production and candidate summarization paths side by side.
+
+Supports:
+- direct `note_text`
+- inline HAPI FHIR `Bundle` payloads
+- HAPI FHIR server fetch via `hapi_fhir_base_url`
+
+**Request Body Example:**
+```json
+{
+  "patient_id": "patient-101",
+  "source_system": "hapi-fhir-r4",
+  "fhir_bundle": {
+    "resourceType": "Bundle",
+    "type": "collection",
+    "entry": []
+  }
+}
+```
+
+**Response Highlights:**
+- production summary
+- shadow summary
+- similarity score
+- alert severity
+- rollout recommendation
+
 ## 🧪 Testing
 
 ```bash
@@ -314,6 +358,8 @@ pytest -v
 - `docs/QUICKSTART.md` - setup and first run
 - `docs/architecture.md` - architecture and design decisions
 - `examples/test_evaluation.py` - runnable Post 5 demonstration with regression detection
+- `examples/test_shadow_mode.py` - runnable Post 6 shadow-mode example using HAPI FHIR-style resources
+- `examples/test_shadow_hapi_server.py` - live HAPI FHIR fetch example for Post 6
 
 ## 🐳 Docker Deployment
 
@@ -379,10 +425,10 @@ Before moving to Post 2 (adding LLMs), understand:
 - [x] **Post 2**: Adding LLMs Without Breaking Things
 - [x] **Post 3**: Prompting as Versioned Code
 - [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice
-- [x] **Post 5**: Building Your First Evaluation Harness (current)
+- [x] **Post 5**: Building Your First Evaluation Harness
+- [x] **Post 6**: Shadow Mode Deployment (current)
 
 ### Planned
-- [ ] **Post 6**: Shadow Mode Deployment
 - [ ] **Post 7**: Monitoring That Triggers Action
 - [ ] **Post 8**: Human Feedback Without Burning Clinicians
 - [ ] **Post 9**: Failure Drills for AI Systems

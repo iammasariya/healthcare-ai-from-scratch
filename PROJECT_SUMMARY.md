@@ -2,15 +2,16 @@
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI system built from first principles through five foundational posts:
+This is a **production-grade** healthcare AI system built from first principles through six foundational posts:
 
 - **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
-- **Post 2**: LLM Integration - Adding Claude with safety guarantees  
+- **Post 2**: LLM Integration - Adding Claude with safety guarantees
 - **Post 3**: Prompt Versioning - Treating prompts as first-class artifacts
 - **Post 4**: Variability Control - Measuring and controlling model consistency
 - **Post 5**: Evaluation Harness - Systematic model evaluation and regression detection
+- **Post 6**: Shadow Mode - Safe model rollout with dual-path execution and HAPI FHIR
 
-This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth.
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth, safe rollout sixth.
 
 ## 🎯 Key Features
 
@@ -44,15 +45,23 @@ This demonstrates how to build healthcare AI the right way: foundation first, mo
 ✅ **Production Monitoring** - Alert detection for concerning patterns  
 
 ### Post 5: Evaluation Harness
-✅ **Golden Dataset Management** - JSON-based, version-controlled test examples  
-✅ **Evaluation Framework** - Exact and fuzzy matching metrics  
-✅ **Regression Detection** - Automated alerts for quality degradation  
-✅ **Model Comparison** - Data-driven version comparison  
-✅ **CI/CD Integration** - JSON output for automated pipelines  
-✅ **HELM Integration** - Optional Stanford HELM for research-grade metrics  
+✅ **Golden Dataset Management** - JSON-based, version-controlled test examples
+✅ **Evaluation Framework** - Exact and fuzzy matching metrics
+✅ **Regression Detection** - Automated alerts for quality degradation
+✅ **Model Comparison** - Data-driven version comparison
+✅ **CI/CD Integration** - JSON output for automated pipelines
+✅ **HELM Integration** - Optional Stanford HELM for research-grade metrics
+
+### Post 6: Shadow Mode
+✅ **Dual-Path Execution** - Production and candidate models run side by side
+✅ **HAPI FHIR Support** - Fetch real clinical data from FHIR servers
+✅ **Divergence Detection** - Automatic flagging when outputs differ
+✅ **Rollout Recommendations** - Data-driven promotion decisions (hold/advance/promote)
+✅ **Alert System** - Critical and warning alerts for quality issues
+✅ **Result Persistence** - JSON-based shadow run history
 
 ### Infrastructure
-✅ **Comprehensive Tests** - 139 tests with 100% core coverage
+✅ **Comprehensive Tests** - 150 tests with 100% core coverage
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
 
@@ -67,24 +76,32 @@ healthcare-ai-from-scratch/
 │   ├── logging.py           # Structured logging with audit IDs
 │   ├── config.py            # Configuration management
 │   ├── llm.py               # LLM service with retry logic (Post 2)
-│   └── prompts.py           # Prompt management system (Post 3)
+│   ├── prompts.py           # Prompt management system (Post 3)
+│   ├── variability.py       # Variability measurement (Post 4)
+│   ├── evaluation.py        # Evaluation harness (Post 5)
+│   └── shadow.py            # Shadow mode deployment (Post 6)
 │
 ├── prompts/                  # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
 │
-├── tests/                    # Test suite (113 tests)
+├── tests/                    # Test suite (150 tests)
 │   ├── __init__.py
-│   ├── test_api.py          # API endpoint tests (27 tests)
+│   ├── test_api.py          # API endpoint tests (31 tests)
 │   ├── test_logging.py      # Logging functionality tests (12 tests)
 │   ├── test_llm.py          # LLM service tests (24 tests) - Post 2
 │   ├── test_prompts.py      # Prompt management tests (16 tests) - Post 3
-│   └── test_variability.py  # Variability tests (34 tests) - Post 4
+│   ├── test_variability.py  # Variability tests (34 tests) - Post 4
+│   ├── test_evaluation.py   # Evaluation tests (26 tests) - Post 5
+│   └── test_shadow.py       # Shadow mode tests (8 tests) - Post 6
 │
 ├── examples/                 # Usage examples
 │   ├── test_client.py       # Example API client
 │   ├── test_summarize.py    # LLM summarization example (Post 2)
 │   ├── test_prompts.py      # Prompt versioning example (Post 3)
-│   └── test_variability.py  # Variability measurement example (Post 4)
+│   ├── test_variability.py  # Variability measurement example (Post 4)
+│   ├── test_evaluation.py   # Evaluation demo (Post 5)
+│   ├── test_shadow_mode.py  # Shadow mode demo with inline FHIR (Post 6)
+│   └── test_shadow_hapi_server.py  # Shadow mode with live HAPI FHIR (Post 6)
 │
 ├── docs/                     # Curated learning docs
 │   ├── architecture.md      # Architecture decisions
@@ -334,8 +351,8 @@ make run-prod     # Production
 
 ## 📊 Project Stats
 
-- **Lines of Code**: ~3,000 (excluding tests and docs)
-- **Tests**: 113 comprehensive tests (100% passing)
+- **Lines of Code**: ~4,000 (excluding tests and docs)
+- **Tests**: 150 comprehensive tests (100% passing)
 - **Test Coverage**: >90% on all modules
 - **Documentation**: 17+ comprehensive guides
 - **Dependencies**: Minimal (FastAPI, Pydantic, Uvicorn, Anthropic, PyYAML)
@@ -361,9 +378,9 @@ This is a **12-post series** building healthcare AI from first principles. Progr
 - ✅ **Post 3**: Prompting as Versioned Code
 - ✅ **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - ✅ **Post 5**: Building Your First Evaluation Harness
+- ✅ **Post 6**: Shadow Mode Deployment
 
 ### Coming Next
-- **Post 6**: Shadow Mode Deployment
 - **Post 7**: Monitoring That Triggers Action
 - **Post 8**: Human Feedback Without Burning Clinicians
 - **Post 9**: Failure Drills for AI Systems

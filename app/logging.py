@@ -68,7 +68,7 @@ class StructuredLogger:
         audit_id = uuid.uuid4()
         
         # Privacy-aware logging: only log preview of note text
-        note_text = payload.get("note_text", "")
+        note_text = payload.get("note_text") or ""
         preview_length = settings.log_payload_preview_length
         payload_preview = note_text[:preview_length]
         if len(note_text) > preview_length:
