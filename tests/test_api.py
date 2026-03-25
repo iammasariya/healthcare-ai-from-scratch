@@ -616,3 +616,118 @@ class TestShadowModeEndpoint:
 
         response = client.post("/shadow/summarize", json=request)
         assert response.status_code == 422
+
+
+class TestMonitoringEndpoints:
+    """Tests for Post 7 monitoring endpoints and actions."""
+
+    def test_monitoring_status_endpoint(self, client):
+        response = client.get("/monitoring/status")
+        assert response.status_code == 200
+        data = response.json()
+        assert "monitoring_enabled" in data
+        assert "actions" in data
+
+    def test_monitoring_evaluate_endpoint(self, client):
+        response = client.post("/monitoring/evaluate")
+        assert response.status_code == 200
+        data = response.json()
+        assert "actions" in data
+
+    def test_monitoring_reset_endpoint(self, client):
+        response = client.post("/monitoring/actions/reset")
+        assert response.status_code == 200
+        data = response.json()
+        assert "actions" in data
+        assert all(action["active"] is False for action in data["actions"])
+
+    def test_shadow_endpoint_blocked_when_monitoring_pauses(self, client):
+        from unittest.mock import patch
+
+        request = {
+            "patient_id": "patient-001",
+            "note_text": "Clinical note",
+            "source_system": "internal",
+        }
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.llm_enabled = True
+            mock_settings.shadow_mode_enabled = True
+            mock_settings.monitoring_enabled = True
+
+            with patch("app.main.monitoring_service") as mock_monitoring:
+                mock_monitoring.is_shadow_paused.return_value = (True, "quality breach")
+
+                response = client.post("/shadow/summarize", json=request)
+
+        assert response.status_code == 503
+        assert "paused" in response.json()["message"].lower()
+
+    def test_shadow_response_rollout_forced_to_hold_when_frozen(self, client):
+        from unittest.mock import patch, Mock
+
+        request = {
+            "patient_id": "patient-001",
+            "note_text": "Clinical note",
+            "source_system": "internal",
+        }
+
+        mock_result = Mock()
+        mock_result.source_system = "internal"
+        mock_result.source_format = "clinical_note"
+        mock_result.note_text = "Clinical note"
+        mock_result.production_response = Mock(
+            content="Production summary",
+            model="prod-model",
+            tokens_used=120,
+            latency_ms=900.0,
+            cost_usd=0.01,
+            prompt_version="1.0.0",
+            prompt_hash="abc123",
+        )
+        mock_result.production_error = None
+        mock_result.shadow_response = Mock(
+            content="Shadow summary",
+            model="shadow-model",
+            tokens_used=125,
+            latency_ms=950.0,
+            cost_usd=0.011,
+            prompt_version="1.1.0",
+            prompt_hash="def456",
+        )
+        mock_result.shadow_error = None
+        mock_result.similarity_score = 0.82
+        mock_result.divergent = False
+        mock_result.review_required = False
+        mock_result.recommendation = "ok"
+        mock_result.alert_triggered = False
+        mock_result.alert_severity = "none"
+        mock_result.alert_message = "ok"
+        mock_result.rollout_recommendation = Mock(
+            total_runs_considered=5,
+            divergent_runs=0,
+            divergence_rate=0.0,
+            avg_similarity=0.82,
+            recommended_traffic_percentage=50,
+            decision="advance",
+            reason="Candidate is ready",
+        )
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.llm_enabled = True
+            mock_settings.shadow_mode_enabled = True
+            mock_settings.monitoring_enabled = True
+
+            with patch("app.main.shadow_runner") as mock_runner:
+                mock_runner.run_llm_shadow.return_value = mock_result
+
+                with patch("app.main.monitoring_service") as mock_monitoring:
+                    mock_monitoring.is_shadow_paused.return_value = (False, None)
+                    mock_monitoring.is_rollout_frozen.return_value = (True, "budget breach")
+
+                    response = client.post("/shadow/summarize", json=request)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["rollout_decision"]["recommended_traffic_percentage"] == 0
+        assert data["rollout_decision"]["decision"] == "hold"

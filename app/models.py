@@ -6,7 +6,7 @@ In healthcare systems, these contracts should be stable and versioned,
 as they outlive any individual model or algorithm.
 """
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
 from datetime import datetime
 from uuid import UUID
 from typing import Optional, Any
@@ -51,13 +51,14 @@ class ClinicalNoteRequest(BaseModel):
             raise ValueError("note_text cannot be empty or whitespace")
         return v.strip()
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "patient_id": "PT-12345",
                 "note_text": "Patient presents with acute onset headache. Vital signs stable. Blood pressure 120/80, pulse 72, temperature 98.6F."
             }
         }
+    )
 
 
 class ClinicalNoteResponse(BaseModel):
@@ -88,8 +89,8 @@ class ClinicalNoteResponse(BaseModel):
         description="Patient identifier (echoed back for verification)"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "audit_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "received_at": "2026-01-27T10:30:45.123456Z",
@@ -97,6 +98,7 @@ class ClinicalNoteResponse(BaseModel):
                 "patient_id": "PT-12345"
             }
         }
+    )
 
 
 class HealthResponse(BaseModel):
@@ -119,14 +121,15 @@ class HealthResponse(BaseModel):
         description="Service version"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "status": "healthy",
                 "timestamp": "2026-01-27T10:30:45.123456Z",
                 "version": "0.1.0"
             }
         }
+    )
 
 
 class ErrorResponse(BaseModel):
@@ -152,8 +155,8 @@ class ErrorResponse(BaseModel):
         description="UTC timestamp of error"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "error": "ValidationError",
                 "message": "note_text cannot be empty or whitespace",
@@ -161,6 +164,7 @@ class ErrorResponse(BaseModel):
                 "timestamp": "2026-01-27T10:30:45.123456Z"
             }
         }
+    )
 
 
 class LLMMetrics(BaseModel):
@@ -194,8 +198,8 @@ class LLMMetrics(BaseModel):
         description="SHA256 hash of prompt content for verification"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "model": "claude-3-5-sonnet-20241022",
                 "tokens_used": 450,
@@ -205,6 +209,7 @@ class LLMMetrics(BaseModel):
                 "prompt_hash": "a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890"
             }
         }
+    )
 
 
 class SummarizeNoteResponse(BaseModel):
@@ -243,8 +248,8 @@ class SummarizeNoteResponse(BaseModel):
         description="Error message if processing failed"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "audit_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "received_at": "2026-01-29T10:30:45.123456Z",
@@ -260,6 +265,7 @@ class SummarizeNoteResponse(BaseModel):
                 "error": None
             }
         }
+    )
 
 
 class ShadowModeRequest(BaseModel):
@@ -319,14 +325,15 @@ class ShadowModeRequest(BaseModel):
 
         return self
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "patient_id": "patient-101",
                 "source_system": "hapi-fhir-r4",
                 "hapi_fhir_base_url": "https://hapi.fhir.org/baseR4",
             }
         }
+    )
 
 
 class ShadowModeAlert(BaseModel):
@@ -371,3 +378,34 @@ class ShadowModeResponse(BaseModel):
     alert: ShadowModeAlert = Field(..., description="Alert outcome for this shadow run")
     rollout_decision: RolloutDecision = Field(..., description="Gradual rollout recommendation")
     error: Optional[str] = Field(None, description="Error message if shadow execution failed")
+
+
+class MonitoringSnapshotResponse(BaseModel):
+    """Aggregated monitoring metrics over the recent shadow window."""
+    total_runs: int = Field(..., description="Total shadow runs considered")
+    divergent_runs: int = Field(..., description="Divergent runs in the window")
+    divergence_rate: float = Field(..., description="Divergence rate in the window")
+    critical_alert_runs: int = Field(..., description="Critical-alert runs in the window")
+    critical_alert_rate: float = Field(..., description="Critical-alert rate in the window")
+    error_runs: int = Field(..., description="Runs with execution errors in the window")
+    error_rate: float = Field(..., description="Error rate in the window")
+    avg_shadow_latency_ms: float = Field(..., description="Average shadow latency in ms")
+    avg_shadow_cost_usd: float = Field(..., description="Average shadow cost in USD")
+    window_size: int = Field(..., description="Configured monitoring window size")
+
+
+class MonitoringActionResponse(BaseModel):
+    """Action status from the monitoring guardrails."""
+    action: str = Field(..., description="Action name")
+    active: bool = Field(..., description="Whether action is currently active")
+    reason: Optional[str] = Field(None, description="Reason action was triggered")
+    triggered_at: Optional[datetime] = Field(None, description="UTC timestamp when action triggered")
+    expires_at: Optional[datetime] = Field(None, description="UTC timestamp when action expires")
+
+
+class MonitoringStatusResponse(BaseModel):
+    """Response model for actionable monitoring state."""
+    monitoring_enabled: bool = Field(..., description="Whether monitoring evaluation is enabled")
+    last_evaluated_at: Optional[datetime] = Field(None, description="Last time monitoring was evaluated")
+    snapshot: Optional[MonitoringSnapshotResponse] = Field(None, description="Latest metric snapshot")
+    actions: list[MonitoringActionResponse] = Field(..., description="Current action states")

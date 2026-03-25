@@ -318,6 +318,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-03-24
+
+### Added - Post 7: Monitoring That Triggers Action
+- **Actionable Monitoring Service**: Evaluates recent shadow runs and applies runtime guardrails
+- **Quality Guardrail**: Automatic `pause_shadow_mode` action when divergence/critical-alert rates breach policy
+- **Performance Guardrail**: Automatic `freeze_candidate_rollout` action when average latency/cost budgets are exceeded
+- **Monitoring State Persistence**: JSON state store with TTL-based action expiry
+- **Monitoring API Endpoints**:
+  - `GET /monitoring/status`
+  - `POST /monitoring/evaluate`
+  - `POST /monitoring/actions/reset`
+- **Monitoring CLI Report**: `scripts/monitoring_action_report.py`
+- **7 New Tests**: 4 monitoring unit tests + 3 API tests for action behavior
+
+### Files Added
+- `app/monitoring.py` - Monitoring engine and action/state models
+- `tests/test_monitoring.py` - Monitoring unit tests
+- `scripts/monitoring_action_report.py` - Monitoring action report CLI
+
+### Files Modified
+- `app/main.py` - Monitoring endpoints and shadow guardrail enforcement
+- `app/models.py` - Monitoring response models
+- `app/config.py` - Monitoring settings and version update
+- `tests/test_api.py` - Monitoring API and guardrail tests
+- `.env.example` - Monitoring environment variables
+
+### New Configuration
+- `MONITORING_ENABLED`
+- `MONITORING_WINDOW_SIZE`
+- `MONITORING_MIN_RUNS_FOR_ACTIONS`
+- `MONITORING_MAX_DIVERGENCE_RATE`
+- `MONITORING_MAX_CRITICAL_ALERT_RATE`
+- `MONITORING_MAX_AVG_SHADOW_LATENCY_MS`
+- `MONITORING_MAX_AVG_SHADOW_COST_USD`
+- `MONITORING_ACTION_TTL_MINUTES`
+- `MONITORING_STATE_FILE`
+
+---
+
 ## [0.5.0] - 2026-02-16
 
 ### Added - Post 5: Evaluation Harness
@@ -354,7 +393,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **0.4.0** - Determinism and variability (Post 4) ✅
 - **0.5.0** - Evaluation harness (Post 5) ✅
 - **0.6.0** - Shadow mode deployment (Post 6) ✅
-- **0.7.0** - (Planned) Monitoring that triggers action (Post 7)
+- **0.7.0** - Monitoring that triggers action (Post 7) ✅
 - **0.8.0** - (Planned) Human feedback loops (Post 8)
 - **0.9.0** - (Planned) Failure drills (Post 9)
 - **0.10.0** - (Planned) Governance as code (Post 10)
@@ -401,6 +440,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configure `SHADOW_CANDIDATE_MODEL` to compare different models
 - No breaking changes - backward compatible
 - New endpoint: `POST /shadow/summarize`
+
+### 0.6.0 → 0.7.0
+- Added actionable monitoring with automatic guardrail actions
+- New endpoints: `GET /monitoring/status`, `POST /monitoring/evaluate`, `POST /monitoring/actions/reset`
+- Added monitoring configuration values in `.env.example`
+- Shadow execution can now be automatically paused by monitoring policy
 
 ---
 

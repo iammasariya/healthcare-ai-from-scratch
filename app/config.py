@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     
     # Application settings
     app_name: str = "Healthcare AI Service"
-    app_version: str = "0.6.0"
+    app_version: str = "0.7.0"
     debug: bool = False
     
     # API settings
@@ -75,6 +75,17 @@ class Settings(BaseSettings):
     # HAPI FHIR settings for clinical examples (Post 6)
     hapi_fhir_base_url: Optional[str] = None
     hapi_fhir_timeout_seconds: int = 10
+
+    # Monitoring settings (Post 7)
+    monitoring_enabled: bool = True
+    monitoring_window_size: int = 20
+    monitoring_min_runs_for_actions: int = 5
+    monitoring_max_divergence_rate: float = 0.30
+    monitoring_max_critical_alert_rate: float = 0.10
+    monitoring_max_avg_shadow_latency_ms: float = 3000.0
+    monitoring_max_avg_shadow_cost_usd: float = 0.02
+    monitoring_action_ttl_minutes: int = 30
+    monitoring_state_file: str = "monitoring_state.json"
     
     model_config = SettingsConfigDict(
         env_file=".env",

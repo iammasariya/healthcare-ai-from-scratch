@@ -2,7 +2,7 @@
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI system built from first principles through six foundational posts:
+This is a **production-grade** healthcare AI system built from first principles through seven foundational posts:
 
 - **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
 - **Post 2**: LLM Integration - Adding Claude with safety guarantees
@@ -10,8 +10,9 @@ This is a **production-grade** healthcare AI system built from first principles 
 - **Post 4**: Variability Control - Measuring and controlling model consistency
 - **Post 5**: Evaluation Harness - Systematic model evaluation and regression detection
 - **Post 6**: Shadow Mode - Safe model rollout with dual-path execution and HAPI FHIR
+- **Post 7**: Monitoring That Triggers Action - Automatic guardrails driven by runtime metrics
 
-This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth, safe rollout sixth.
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth, safe rollout sixth, actionable monitoring seventh.
 
 ## 🎯 Key Features
 
@@ -60,8 +61,15 @@ This demonstrates how to build healthcare AI the right way: foundation first, mo
 ✅ **Alert System** - Critical and warning alerts for quality issues
 ✅ **Result Persistence** - JSON-based shadow run history
 
+### Post 7: Actionable Monitoring
+✅ **Guardrail Actions** - Automatic pause/freeze actions from policy breaches
+✅ **Monitoring Snapshots** - Rolling quality and performance metrics
+✅ **Action State Persistence** - Restart-safe monitoring state with TTL
+✅ **Operational Endpoints** - Status, evaluate, and reset APIs
+✅ **Runbook Script** - CLI report for operational review
+
 ### Infrastructure
-✅ **Comprehensive Tests** - 150 tests with 100% core coverage
+✅ **Comprehensive Tests** - Unit and API coverage across all implemented posts
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
 
@@ -79,12 +87,13 @@ healthcare-ai-from-scratch/
 │   ├── prompts.py           # Prompt management system (Post 3)
 │   ├── variability.py       # Variability measurement (Post 4)
 │   ├── evaluation.py        # Evaluation harness (Post 5)
-│   └── shadow.py            # Shadow mode deployment (Post 6)
+│   ├── shadow.py            # Shadow mode deployment (Post 6)
+│   └── monitoring.py        # Actionable monitoring (Post 7)
 │
 ├── prompts/                  # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
 │
-├── tests/                    # Test suite (150 tests)
+├── tests/                    # Test suite
 │   ├── __init__.py
 │   ├── test_api.py          # API endpoint tests (31 tests)
 │   ├── test_logging.py      # Logging functionality tests (12 tests)
@@ -92,7 +101,8 @@ healthcare-ai-from-scratch/
 │   ├── test_prompts.py      # Prompt management tests (16 tests) - Post 3
 │   ├── test_variability.py  # Variability tests (34 tests) - Post 4
 │   ├── test_evaluation.py   # Evaluation tests (26 tests) - Post 5
-│   └── test_shadow.py       # Shadow mode tests (8 tests) - Post 6
+│   ├── test_shadow.py       # Shadow mode tests (8 tests) - Post 6
+│   └── test_monitoring.py   # Monitoring tests (Post 7)
 │
 ├── examples/                 # Usage examples
 │   ├── test_client.py       # Example API client
@@ -379,9 +389,9 @@ This is a **12-post series** building healthcare AI from first principles. Progr
 - ✅ **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - ✅ **Post 5**: Building Your First Evaluation Harness
 - ✅ **Post 6**: Shadow Mode Deployment
+- ✅ **Post 7**: Monitoring That Triggers Action
 
 ### Coming Next
-- **Post 7**: Monitoring That Triggers Action
 - **Post 8**: Human Feedback Without Burning Clinicians
 - **Post 9**: Failure Drills for AI Systems
 - **Post 10**: Governance as Code

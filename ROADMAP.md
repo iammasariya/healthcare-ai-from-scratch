@@ -246,7 +246,7 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 
 ### 🎯 Post 7: Monitoring That Triggers Action
 
-**Status**: Planned  
+**Status**: Complete  
 **Goal**: Build monitoring that changes behavior, not dashboards no one reads
 
 **What They Learn**:
@@ -255,26 +255,26 @@ Inspired by Stanford HAI's guidance on building safe, secure medical AI platform
 - Tying metrics to concrete actions
 - When to page vs log vs ignore
 
-**Planned Features**:
-- [ ] Three-tier metric system (integrity/performance/impact)
-- [ ] Actionable alerting rules
-- [ ] Automatic model disabling on quality degradation
-- [ ] Cost and latency budgets
-- [ ] Clinician satisfaction tracking
-- [ ] Metric-triggered responses
+**What We Built**:
+- [x] Actionable monitoring service over rolling shadow windows
+- [x] Quality guardrail action: automatic shadow pause on degradation
+- [x] Performance guardrail action: rollout freeze on latency/cost budget breach
+- [x] Persisted monitoring action state with TTL
+- [x] Operational endpoints: status, evaluate, and reset actions
+- [x] CLI monitoring report for runbooks and automation
 
 **Key Learning**: Monitoring that changes behavior.
 
 **Example Metrics**:
-- Integrity: prompt hash mismatches, malformed outputs
-- Performance: latency p99, cost per request, error rates
-- Impact: clinician override rate, time saved, satisfaction
+- Quality: divergence rate, critical alert rate, shadow error rate
+- Performance: average shadow latency, average shadow cost
+- Actionability: explicit mapping from breaches to runtime actions
 
 **Technical Challenges**:
 - Defining thresholds
 - Avoiding false positives
 - Tying alerts to runbooks
-- Measuring clinical impact
+- Managing automatic action expiry and reset workflows
 
 **Outcome**: Your monitoring system takes action, not just records data.
 
