@@ -17,3 +17,4 @@ pyyaml==6.0.1
 
 # Additional utilities
 python-dotenv==1.0.0
+requests==2.32.3

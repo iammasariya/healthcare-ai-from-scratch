@@ -4,14 +4,15 @@ A production-grade healthcare AI system built from first principles. This projec
 
 ## 🎯 Purpose
 
-This is a series on building healthcare AI systems from scratch, starting with the foundation.
+This is a series on building healthcare AI systems from scratch, from foundation to operational guardrails.
 
 **Post 1: Foundation Without AI** - Build the system before the model  
 **Post 2: Adding LLMs Safely** - Integrate Claude without breaking the foundation  
 **Post 3: Prompting as Versioned Code** - Treat prompts as first-class artifacts  
 **Post 4: Variability Control** - Measure and control model consistency  
-**Post 5: Evaluation Harness** - Systematic model evaluation and regression detection
-**Post 6: Shadow Mode** - Safe model rollout with dual-path execution and HAPI FHIR (current)
+**Post 5: Evaluation Harness** - Systematic model evaluation and regression detection  
+**Post 6: Shadow Mode** - Safe model rollout with dual-path execution and HAPI FHIR  
+**Post 7: Monitoring That Triggers Action** - Guardrails that automatically pause or freeze rollout (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
@@ -68,7 +69,7 @@ Measure and control model output variability:
 - Temperature 0.7: Significant variability (~60% similarity)
 - Clinicians notice inconsistency - measure and control it
 
-### Post 5: Evaluation Harness (Current)
+### Post 5: Evaluation Harness
 Systematic model evaluation and regression detection:
 - ✅ Golden dataset management (JSON-based, version-controlled)
 - ✅ Evaluation framework with exact and fuzzy matching
@@ -84,7 +85,7 @@ Systematic model evaluation and regression detection:
 - Evaluation as code, not notebooks
 - Optional MedHELM / HELM integration for research-grade metrics
 
-### Post 6: Shadow Mode Deployment (Current)
+### Post 6: Shadow Mode Deployment
 Safe rollout foundations for candidate models:
 - ✅ Shadow-mode comparison service for production vs candidate outputs
 - ✅ Divergence scoring built on the Post 5 evaluator
@@ -92,6 +93,15 @@ Safe rollout foundations for candidate models:
 - ✅ HAPI FHIR bundle support for realistic clinical context
 - ✅ `/shadow/summarize` endpoint for dual-path execution
 - ✅ 5 shadow-mode tests plus API coverage
+
+### Post 7: Monitoring That Triggers Action (Current)
+Monitoring that changes runtime behavior:
+- ✅ Actionable monitoring service with rolling quality/performance snapshots
+- ✅ Automatic `pause_shadow_mode` guardrail on quality degradation
+- ✅ Automatic `freeze_candidate_rollout` guardrail on budget/perf breaches
+- ✅ Persisted monitoring action state with TTL
+- ✅ `/monitoring/status`, `/monitoring/evaluate`, `/monitoring/actions/reset` endpoints
+- ✅ Monitoring report script for operations
 
 ## 🚀 Quick Start
 
@@ -162,6 +172,7 @@ healthcare-ai-from-scratch/
 │   ├── variability.py   # Variability measurement (Post 4)
 │   ├── evaluation.py    # Evaluation harness (Post 5)
 │   ├── shadow.py        # Shadow mode utilities (Post 6 foundation)
+│   ├── monitoring.py    # Actionable monitoring guardrails (Post 7)
 │   └── helm_adapter.py  # MedHELM / HELM integration (Post 5, optional)
 ├── prompts/             # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
@@ -175,7 +186,8 @@ healthcare-ai-from-scratch/
 │   ├── test_prompts.py  # Prompt management tests (Post 3)
 │   ├── test_variability.py  # Variability tests (Post 4)
 │   ├── test_evaluation.py   # Evaluation tests (Post 5)
-│   └── test_shadow.py       # Shadow mode tests (Post 6 foundation)
+│   ├── test_shadow.py       # Shadow mode tests (Post 6 foundation)
+│   └── test_monitoring.py   # Monitoring action tests (Post 7)
 ├── examples/
 │   ├── test_client.py       # Example client usage
 │   ├── test_summarize.py    # LLM summarization example (Post 2)
@@ -187,7 +199,8 @@ healthcare-ai-from-scratch/
 │   └── helm_evaluation_example.py  # Hybrid evaluation (Post 5)
 ├── scripts/
 │   ├── compare_evaluators.py  # Compare built-in vs MedHELM / HELM (Post 5)
-│   └── shadow_rollout_report.py  # Summarize saved shadow runs (Post 6)
+│   ├── shadow_rollout_report.py  # Summarize saved shadow runs (Post 6)
+│   └── monitoring_action_report.py  # Show monitoring actions/state (Post 7)
 ├── docs/
 │   ├── QUICKSTART.md
 │   └── architecture.md
@@ -336,6 +349,18 @@ Supports:
 - alert severity
 - rollout recommendation
 
+### GET /monitoring/status (Post 7: Actionable Monitoring)
+
+Return current monitoring snapshot and guardrail action state.
+
+### POST /monitoring/evaluate (Post 7: Actionable Monitoring)
+
+Force immediate monitoring evaluation and action updates.
+
+### POST /monitoring/actions/reset (Post 7: Actionable Monitoring)
+
+Reset active monitoring actions after incident review/remediation.
+
 ## 🧪 Testing
 
 ```bash
@@ -360,6 +385,9 @@ pytest -v
 - `examples/test_evaluation.py` - runnable Post 5 demonstration with regression detection
 - `examples/test_shadow_mode.py` - runnable Post 6 shadow-mode example using HAPI FHIR-style resources
 - `examples/test_shadow_hapi_server.py` - live HAPI FHIR fetch example for Post 6
+- `scripts/monitoring_action_report.py` - evaluate monitoring rules and print active Post 7 actions
+- `docs/POST_7_LINKEDIN_ARTICLE.md` - Post 7 narrative article
+- `docs/POST_7_SUMMARY.md` - Post 7 implementation summary
 
 ## 🐳 Docker Deployment
 
@@ -411,12 +439,12 @@ This foundation matters because:
 
 ## 📚 What to Internalize
 
-Before moving to Post 2 (adding LLMs), understand:
+Across Posts 1-7:
 
 - ✅ AI is a dependency, not the system
-- ✅ Interfaces matter more than models
+- ✅ Interfaces matter more than model churn
 - ✅ Traceability is a prerequisite for trust
-- ✅ Production systems need structure before intelligence
+- ✅ Monitoring must trigger action, not just alerts
 
 ## 🛣️ Roadmap
 
@@ -426,10 +454,10 @@ Before moving to Post 2 (adding LLMs), understand:
 - [x] **Post 3**: Prompting as Versioned Code
 - [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - [x] **Post 5**: Building Your First Evaluation Harness
-- [x] **Post 6**: Shadow Mode Deployment (current)
+- [x] **Post 6**: Shadow Mode Deployment
+- [x] **Post 7**: Monitoring That Triggers Action (current)
 
 ### Planned
-- [ ] **Post 7**: Monitoring That Triggers Action
 - [ ] **Post 8**: Human Feedback Without Burning Clinicians
 - [ ] **Post 9**: Failure Drills for AI Systems
 - [ ] **Post 10**: Governance as Code

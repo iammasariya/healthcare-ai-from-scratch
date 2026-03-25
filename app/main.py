@@ -27,11 +27,15 @@ from app.models import (
     ShadowModeResponse,
     ShadowModeAlert,
     RolloutDecision,
+    MonitoringStatusResponse,
+    MonitoringSnapshotResponse,
+    MonitoringActionResponse,
 )
 from app.logging import log_request, log_response, log_error
 from app.config import settings
 from app.llm import get_llm_service, LLMService
 from app.shadow import ShadowModeRunner, build_llm_metrics
+from app.monitoring import MonitoringService
 
 
 @asynccontextmanager
@@ -64,7 +68,7 @@ app = FastAPI(
     - Type-safe request/response validation
     - Production-ready error handling
     
-    **Post 6**: Shadow mode deployment with dual-path execution and HAPI FHIR support.
+    **Post 7**: Actionable monitoring with guardrails for shadow rollout.
     """,
     lifespan=lifespan,
     docs_url="/docs",
@@ -81,6 +85,26 @@ app.add_middleware(
 )
 
 shadow_runner = ShadowModeRunner()
+monitoring_service = MonitoringService()
+
+
+def _monitoring_status_response() -> MonitoringStatusResponse:
+    state = monitoring_service.get_state()
+    snapshot = (
+        MonitoringSnapshotResponse(**state.snapshot.__dict__)
+        if state.snapshot is not None
+        else None
+    )
+    actions = [
+        MonitoringActionResponse(**state.pause_shadow_mode.__dict__),
+        MonitoringActionResponse(**state.freeze_candidate_rollout.__dict__),
+    ]
+    return MonitoringStatusResponse(
+        monitoring_enabled=settings.monitoring_enabled,
+        last_evaluated_at=state.last_evaluated_at,
+        snapshot=snapshot,
+        actions=actions,
+    )
 
 
 @app.middleware("http")
@@ -438,6 +462,14 @@ async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeRespons
             detail="Shadow mode is not enabled. Set SHADOW_MODE_ENABLED=true to enable."
         )
 
+    if settings.monitoring_enabled:
+        paused, reason = monitoring_service.is_shadow_paused()
+        if paused:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Shadow mode is paused by monitoring guardrails. {reason}",
+            )
+
     audit_id = log_request(
         request.model_dump(),
         metadata={"source_system": request.source_system, "shadow_mode": True},
@@ -468,7 +500,7 @@ async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeRespons
             },
         )
 
-        return ShadowModeResponse(
+        response = ShadowModeResponse(
             audit_id=audit_id,
             received_at=received_at,
             status="completed" if not (result.production_error or result.shadow_error) else "failed",
@@ -510,6 +542,18 @@ async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeRespons
             ),
             error=result.production_error or result.shadow_error,
         )
+
+        if settings.monitoring_enabled:
+            monitoring_service.evaluate()
+            frozen, reason = monitoring_service.is_rollout_frozen()
+            if frozen:
+                response.rollout_decision.recommended_traffic_percentage = 0
+                response.rollout_decision.decision = "hold"
+                response.rollout_decision.reason = (
+                    f"Rollout frozen by monitoring guardrails. {reason}"
+                )
+
+        return response
 
     except ValueError as e:
         error_msg = str(e)
@@ -555,6 +599,48 @@ async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeRespons
             ),
             error=error_msg,
         )
+
+
+@app.get(
+    "/monitoring/status",
+    response_model=MonitoringStatusResponse,
+    tags=["Monitoring"],
+    summary="Get actionable monitoring state",
+    description="""
+    Returns Post 7 monitoring snapshot and active guardrail actions.
+    """
+)
+async def monitoring_status() -> MonitoringStatusResponse:
+    return _monitoring_status_response()
+
+
+@app.post(
+    "/monitoring/evaluate",
+    response_model=MonitoringStatusResponse,
+    tags=["Monitoring"],
+    summary="Evaluate monitoring rules now",
+    description="""
+    Recompute monitoring metrics and apply threshold-based actions immediately.
+    """
+)
+async def monitoring_evaluate() -> MonitoringStatusResponse:
+    if settings.monitoring_enabled:
+        monitoring_service.evaluate()
+    return _monitoring_status_response()
+
+
+@app.post(
+    "/monitoring/actions/reset",
+    response_model=MonitoringStatusResponse,
+    tags=["Monitoring"],
+    summary="Reset active monitoring actions",
+    description="""
+    Clears monitoring actions (pause/freeze). Use this after incident review.
+    """
+)
+async def monitoring_reset_actions() -> MonitoringStatusResponse:
+    monitoring_service.reset_actions()
+    return _monitoring_status_response()
 
 
 if __name__ == "__main__":  # pragma: no cover

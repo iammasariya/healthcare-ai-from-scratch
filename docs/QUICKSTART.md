@@ -380,6 +380,9 @@ See `CONTRIBUTING.md` for contribution guidelines.
 | `/summarize` | POST | Summarize with LLM | Yes |
 | `/metrics` | GET | Basic metrics | No |
 | `/shadow/summarize` | POST | Shadow mode dual-path | Yes |
+| `/monitoring/status` | GET | Monitoring snapshot + actions | No |
+| `/monitoring/evaluate` | POST | Force monitoring evaluation | No |
+| `/monitoring/actions/reset` | POST | Clear monitoring actions | No |
 
 ## What You've Built
 
@@ -391,8 +394,9 @@ After completing this quickstart, you have:
 ✅ **Post 4**: Variability measurement and control  
 ✅ **Post 5**: Evaluation harness with golden datasets  
 ✅ **Post 6**: Shadow mode with rollout controls and HAPI FHIR examples  
+✅ **Post 7**: Monitoring guardrails that trigger runtime actions  
 
-**Next**: Post 7 - Monitoring That Triggers Action
+**Next**: Post 8 - Human Feedback Without Burning Clinicians
 
 ---
 

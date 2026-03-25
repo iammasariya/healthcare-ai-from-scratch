@@ -49,6 +49,7 @@ evaluation_results/
 shadow_results/
 helm_output/
 .helm_cache/
+monitoring_state.json
 
 # Environment
 .env

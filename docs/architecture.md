@@ -278,8 +278,22 @@ Added systematic model evaluation:
 - ✅ CI/CD integration (JSON output)
 - ✅ Stanford HELM integration (optional)
 
-### Beyond Post 5
-The series continues through Post 12, covering shadow mode deployment, monitoring, human feedback, failure drills, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
+### Post 6: Shadow Mode (Completed)
+Added safe rollout foundations:
+- ✅ Dual-path execution for production vs candidate models
+- ✅ Divergence scoring using Post 5 evaluation metrics
+- ✅ HAPI FHIR bundle context support
+- ✅ Alerting and promotion recommendations
+
+### Post 7: Monitoring That Triggers Action (Completed)
+Added runtime guardrails:
+- ✅ Rolling monitoring snapshots from shadow results
+- ✅ Automatic pause action on quality degradation
+- ✅ Automatic rollout freeze action on budget/performance breach
+- ✅ Monitoring status/evaluate/reset endpoints
+
+### Beyond Post 7
+The series continues through Post 12, covering human feedback, failure drills, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
 
 Each post builds on this foundation without breaking it.
 

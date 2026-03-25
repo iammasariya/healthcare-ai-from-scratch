@@ -33,6 +33,13 @@ Tests for API endpoints covering Post 1, Post 2, and Post 3 functionality.
 - Successful shadow execution with HAPI FHIR bundle
 - Missing input source validation
 
+**Post 7 Tests (NEW):**
+- `/monitoring/status` endpoint
+- `/monitoring/evaluate` endpoint
+- `/monitoring/actions/reset` endpoint
+- Shadow blocking behavior when monitoring pause action is active
+- Rollout hold override when monitoring freeze action is active
+
 **Test Count:** 31 test cases
 
 ### `test_llm.py` (NEW - Post 2)
@@ -122,6 +129,15 @@ Comprehensive tests for the variability measurement system.
   - Multiple runs with metrics calculation
 
 **Test Count:** 34 test cases
+
+### `test_monitoring.py` (NEW - Post 7)
+Tests for actionable monitoring behavior.
+
+**Coverage:**
+- Monitoring snapshot generation
+- Quality breach action activation
+- Performance budget breach activation
+- Action expiration and auto-clear behavior
 
 ## Running Tests
 
