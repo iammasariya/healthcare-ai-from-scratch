@@ -107,6 +107,26 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
+## Optional: Run the Bonus UI (Posts 1-8 Workbench)
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173`.
+
+## Full Stack via Docker Compose (API + UI)
+
+```bash
+docker compose up -d --build
+```
+
+Then open:
+- API docs: `http://localhost:8000/docs`
+- UI console: `http://localhost:3000`
+
 ## Explore the API
 
 ### 1. Interactive Documentation
@@ -383,6 +403,9 @@ See `CONTRIBUTING.md` for contribution guidelines.
 | `/monitoring/status` | GET | Monitoring snapshot + actions | No |
 | `/monitoring/evaluate` | POST | Force monitoring evaluation | No |
 | `/monitoring/actions/reset` | POST | Clear monitoring actions | No |
+| `/feedback` | POST | Submit clinician feedback | No |
+| `/feedback/analytics` | GET | Feedback participation metrics | No |
+| `/feedback/queue` | GET | High-priority feedback queue | No |
 
 ## What You've Built
 
@@ -394,9 +417,10 @@ After completing this quickstart, you have:
 ✅ **Post 4**: Variability measurement and control  
 ✅ **Post 5**: Evaluation harness with golden datasets  
 ✅ **Post 6**: Shadow mode with rollout controls and HAPI FHIR examples  
-✅ **Post 7**: Monitoring guardrails that trigger runtime actions  
+✅ **Post 7**: Monitoring guardrails that trigger runtime actions
+✅ **Post 8**: Low-friction feedback with analytics and queue triage
 
-**Next**: Post 8 - Human Feedback Without Burning Clinicians
+**Next**: Post 9 - Failure Drills for AI Systems
 
 ---
 

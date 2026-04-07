@@ -2,7 +2,7 @@
 
 ## 📦 What You're Getting
 
-This is a **production-grade** healthcare AI system built from first principles through seven foundational posts:
+This is a **production-grade** healthcare AI system built from first principles through eight foundational posts:
 
 - **Post 1**: Foundation without AI - The scaffolding every healthcare system needs
 - **Post 2**: LLM Integration - Adding Claude with safety guarantees
@@ -11,8 +11,9 @@ This is a **production-grade** healthcare AI system built from first principles 
 - **Post 5**: Evaluation Harness - Systematic model evaluation and regression detection
 - **Post 6**: Shadow Mode - Safe model rollout with dual-path execution and HAPI FHIR
 - **Post 7**: Monitoring That Triggers Action - Automatic guardrails driven by runtime metrics
+- **Post 8**: Human Feedback Without Burning Clinicians - Low-friction feedback with analytics and triage
 
-This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth, safe rollout sixth, actionable monitoring seventh.
+This demonstrates how to build healthcare AI the right way: foundation first, models second, governance third, consistency fourth, evaluation fifth, safe rollout sixth, actionable monitoring seventh, feedback loops eighth.
 
 ## 🎯 Key Features
 
@@ -68,10 +69,18 @@ This demonstrates how to build healthcare AI the right way: foundation first, mo
 ✅ **Operational Endpoints** - Status, evaluate, and reset APIs
 ✅ **Runbook Script** - CLI report for operational review
 
+### Post 8: Human Feedback
+✅ **Low-Friction Submission** - Structured `up/down` feedback linked to `audit_id`
+✅ **Inline Corrections** - Optional correction text capture for direct improvement signal
+✅ **Participation Analytics** - Coverage rate, sentiment, and category distribution
+✅ **Priority Queue** - High-priority negative feedback queue for reviewer focus
+✅ **Feedback Report** - CLI analytics and queue summary for operations
+
 ### Infrastructure
 ✅ **Comprehensive Tests** - Unit and API coverage across all implemented posts
 ✅ **Docker Ready** - Container deployment with docker-compose  
 ✅ **Full Documentation** - Architecture, deployment, contributing guides  
+✅ **Bonus UI Workbench** - Vite frontend to test Posts 1-8 in one place, SMART-ready
 
 ## 📁 Project Structure
 
@@ -88,7 +97,8 @@ healthcare-ai-from-scratch/
 │   ├── variability.py       # Variability measurement (Post 4)
 │   ├── evaluation.py        # Evaluation harness (Post 5)
 │   ├── shadow.py            # Shadow mode deployment (Post 6)
-│   └── monitoring.py        # Actionable monitoring (Post 7)
+│   ├── monitoring.py        # Actionable monitoring (Post 7)
+│   └── feedback.py          # Human feedback loop (Post 8)
 │
 ├── prompts/                  # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
@@ -102,7 +112,8 @@ healthcare-ai-from-scratch/
 │   ├── test_variability.py  # Variability tests (34 tests) - Post 4
 │   ├── test_evaluation.py   # Evaluation tests (26 tests) - Post 5
 │   ├── test_shadow.py       # Shadow mode tests (8 tests) - Post 6
-│   └── test_monitoring.py   # Monitoring tests (Post 7)
+│   ├── test_monitoring.py   # Monitoring tests (Post 7)
+│   └── test_feedback.py     # Feedback tests (Post 8)
 │
 ├── examples/                 # Usage examples
 │   ├── test_client.py       # Example API client
@@ -362,7 +373,7 @@ make run-prod     # Production
 ## 📊 Project Stats
 
 - **Lines of Code**: ~4,000 (excluding tests and docs)
-- **Tests**: 150 comprehensive tests (100% passing)
+- **Tests**: Comprehensive test suite across implemented modules
 - **Test Coverage**: >90% on all modules
 - **Documentation**: 17+ comprehensive guides
 - **Dependencies**: Minimal (FastAPI, Pydantic, Uvicorn, Anthropic, PyYAML)
@@ -390,9 +401,9 @@ This is a **12-post series** building healthcare AI from first principles. Progr
 - ✅ **Post 5**: Building Your First Evaluation Harness
 - ✅ **Post 6**: Shadow Mode Deployment
 - ✅ **Post 7**: Monitoring That Triggers Action
+- ✅ **Post 8**: Human Feedback Without Burning Clinicians
 
 ### Coming Next
-- **Post 8**: Human Feedback Without Burning Clinicians
 - **Post 9**: Failure Drills for AI Systems
 - **Post 10**: Governance as Code
 - **Post 11**: From Service to Platform

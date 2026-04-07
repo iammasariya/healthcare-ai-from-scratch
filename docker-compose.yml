@@ -20,6 +20,20 @@ services:
       retries: 3
       start_period: 5s
 
+  ui:
+    build:
+      context: ./ui
+    container_name: healthcare-ai-ui
+    ports:
+      - "3000:3000"
+    environment:
+      API_UPSTREAM: http://api:8000
+      FRAME_ANCESTORS: "'self' https://*.epic.com"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
   # Optional: Add nginx reverse proxy for production
   # nginx:
   #   image: nginx:alpine

@@ -248,10 +248,13 @@ class ShadowResultStore:
 
         records: list[ShadowModeRunRecord] = []
         for path in sorted(self.directory.glob("*.json")):
-            with open(path, "r") as f:
-                data = json.load(f)
-            records.append(ShadowModeRunRecord(**data))
+            records.append(self.load_record(path))
         return records
+
+    def load_record(self, path: Path) -> ShadowModeRunRecord:
+        with open(path, "r") as f:
+            data = json.load(f)
+        return ShadowModeRunRecord(**data)
 
     def recommend_rollout(self) -> RolloutRecommendation:
         records = self.load_all()

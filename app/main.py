@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 from contextlib import asynccontextmanager
 import time
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from app.models import (
     ClinicalNoteRequest,
@@ -30,12 +30,22 @@ from app.models import (
     MonitoringStatusResponse,
     MonitoringSnapshotResponse,
     MonitoringActionResponse,
+    FeedbackRequest,
+    FeedbackResponse,
+    FeedbackAnalyticsResponse,
+    FeedbackQueueItemResponse,
+    AuditSearchResponse,
+    IncidentCreateRequest,
+    IncidentResponse,
 )
 from app.logging import log_request, log_response, log_error
 from app.config import settings
 from app.llm import get_llm_service, LLMService
 from app.shadow import ShadowModeRunner, build_llm_metrics
 from app.monitoring import MonitoringService
+from app.feedback import FeedbackService
+from app.audit import AuditExplorerService
+from app.incidents import IncidentService
 
 
 @asynccontextmanager
@@ -68,7 +78,7 @@ app = FastAPI(
     - Type-safe request/response validation
     - Production-ready error handling
     
-    **Post 7**: Actionable monitoring with guardrails for shadow rollout.
+    **Post 8**: Human feedback loops with analytics and review queue.
     """,
     lifespan=lifespan,
     docs_url="/docs",
@@ -86,6 +96,9 @@ app.add_middleware(
 
 shadow_runner = ShadowModeRunner()
 monitoring_service = MonitoringService()
+feedback_service = FeedbackService()
+audit_service = AuditExplorerService(feedback_service=feedback_service)
+incident_service = IncidentService(monitoring=monitoring_service)
 
 
 def _monitoring_status_response() -> MonitoringStatusResponse:
@@ -373,7 +386,7 @@ async def summarize_note(request: ClinicalNoteRequest) -> SummarizeNoteResponse:
         )
         
         # Return successful response
-        return SummarizeNoteResponse(
+        response = SummarizeNoteResponse(
             audit_id=audit_id,
             received_at=received_at,
             status="completed",
@@ -382,6 +395,15 @@ async def summarize_note(request: ClinicalNoteRequest) -> SummarizeNoteResponse:
             llm_metrics=metrics,
             error=None
         )
+
+        if getattr(settings, "feedback_enabled", False) is True:
+            feedback_service.record_served_response(
+                audit_id=str(audit_id),
+                endpoint="summarize",
+                status="completed",
+            )
+
+        return response
         
     except ValueError as e:
         # API key not configured
@@ -553,6 +575,13 @@ async def summarize_note_shadow(request: ShadowModeRequest) -> ShadowModeRespons
                     f"Rollout frozen by monitoring guardrails. {reason}"
                 )
 
+        if getattr(settings, "feedback_enabled", False) is True:
+            feedback_service.record_served_response(
+                audit_id=str(audit_id),
+                endpoint="shadow/summarize",
+                status=response.status,
+            )
+
         return response
 
     except ValueError as e:
@@ -641,6 +670,174 @@ async def monitoring_evaluate() -> MonitoringStatusResponse:
 async def monitoring_reset_actions() -> MonitoringStatusResponse:
     monitoring_service.reset_actions()
     return _monitoring_status_response()
+
+
+@app.post(
+    "/feedback",
+    response_model=FeedbackResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Feedback"],
+    summary="Submit clinician feedback with optional inline correction",
+    description="""
+    Post 8 feedback endpoint designed for low-friction clinician input.
+    """
+)
+async def submit_feedback(request: FeedbackRequest) -> FeedbackResponse:
+    if getattr(settings, "feedback_enabled", False) is not True:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Feedback collection is disabled. Set FEEDBACK_ENABLED=true to enable.",
+        )
+
+    if len(request.categories) > settings.feedback_max_categories:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Too many categories. Maximum allowed is {settings.feedback_max_categories}."
+            ),
+        )
+
+    feedback_event = feedback_service.submit_feedback(
+        audit_id=str(request.audit_id),
+        signal=request.signal,
+        categories=request.categories,
+        correction_text=request.correction_text,
+        comment=request.comment,
+        clinician_role=request.clinician_role,
+        seconds_to_submit=request.seconds_to_submit,
+        source_endpoint=request.source_endpoint,
+    )
+
+    return FeedbackResponse(
+        feedback_id=feedback_event.feedback_id,
+        audit_id=feedback_event.audit_id,
+        status="accepted",
+        signal=feedback_event.signal,
+        priority=feedback_event.priority,
+        reference_found=feedback_event.reference_found,
+        created_at=feedback_event.created_at,
+    )
+
+
+@app.get(
+    "/feedback/analytics",
+    response_model=FeedbackAnalyticsResponse,
+    tags=["Feedback"],
+    summary="Get feedback analytics snapshot",
+    description="""
+    Returns Post 8 engagement and quality analytics from recent feedback.
+    """
+)
+async def feedback_analytics(window_days: int = settings.feedback_default_analytics_days) -> FeedbackAnalyticsResponse:
+    if getattr(settings, "feedback_enabled", False) is not True:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Feedback collection is disabled. Set FEEDBACK_ENABLED=true to enable.",
+        )
+    if window_days < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="window_days must be >= 1.",
+        )
+
+    snapshot = feedback_service.analytics(window_days=window_days)
+    return FeedbackAnalyticsResponse(**snapshot.__dict__)
+
+
+@app.get(
+    "/feedback/queue",
+    response_model=list[FeedbackQueueItemResponse],
+    tags=["Feedback"],
+    summary="Get high-priority feedback queue",
+    description="""
+    Returns high-priority feedback items for targeted review and correction workflows.
+    """
+)
+async def feedback_queue(limit: int = settings.feedback_max_queue_items) -> list[FeedbackQueueItemResponse]:
+    if getattr(settings, "feedback_enabled", False) is not True:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Feedback collection is disabled. Set FEEDBACK_ENABLED=true to enable.",
+        )
+    if limit < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="limit must be >= 1.",
+        )
+
+    items = feedback_service.high_priority_queue(limit=limit)
+    return [FeedbackQueueItemResponse(**item.__dict__) for item in items]
+
+
+@app.get(
+    "/audits/search",
+    response_model=list[AuditSearchResponse],
+    tags=["Audit"],
+    summary="Search audit-linked events across control-plane stores",
+)
+async def audit_search(query: str = "", days: int = 14, limit: int = 100) -> list[AuditSearchResponse]:
+    if days < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="days must be >= 1.")
+    if limit < 1 or limit > 500:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="limit must be between 1 and 500.")
+
+    hits = audit_service.search(query=query, days=days, limit=limit)
+    return [AuditSearchResponse(**hit.__dict__) for hit in hits]
+
+
+@app.get(
+    "/incidents",
+    response_model=list[IncidentResponse],
+    tags=["Operations"],
+    summary="List incident workspace records",
+)
+async def list_incidents() -> list[IncidentResponse]:
+    incidents = incident_service.list_incidents()
+    return [IncidentResponse(**item.__dict__) for item in incidents]
+
+
+@app.post(
+    "/incidents",
+    response_model=IncidentResponse,
+    tags=["Operations"],
+    summary="Create incident record",
+)
+async def create_incident(request: IncidentCreateRequest) -> IncidentResponse:
+    incident = incident_service.create_incident(
+        title=request.title,
+        severity=request.severity,
+        source=request.source,
+        summary=request.summary,
+        owner=request.owner,
+        linked_action=request.linked_action,
+        linked_audit_id=request.linked_audit_id,
+    )
+    return IncidentResponse(**incident.__dict__)
+
+
+@app.post(
+    "/incidents/sync-monitoring",
+    response_model=list[IncidentResponse],
+    tags=["Operations"],
+    summary="Create incident records for active monitoring actions",
+)
+async def sync_incidents_from_monitoring() -> list[IncidentResponse]:
+    created = incident_service.sync_from_monitoring_actions()
+    return [IncidentResponse(**item.__dict__) for item in created]
+
+
+@app.post(
+    "/incidents/{incident_id}/resolve",
+    response_model=IncidentResponse,
+    tags=["Operations"],
+    summary="Resolve an incident",
+)
+async def resolve_incident(incident_id: str, owner: Optional[str] = None) -> IncidentResponse:
+    try:
+        incident = incident_service.resolve_incident(incident_id=incident_id, owner=owner)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return IncidentResponse(**incident.__dict__)
 
 
 if __name__ == "__main__":  # pragma: no cover

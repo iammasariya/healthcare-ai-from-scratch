@@ -40,7 +40,13 @@ Tests for API endpoints covering Post 1, Post 2, and Post 3 functionality.
 - Shadow blocking behavior when monitoring pause action is active
 - Rollout hold override when monitoring freeze action is active
 
-**Test Count:** 31 test cases
+**Post 8 Tests (NEW):**
+- `/feedback` submission endpoint
+- category-limit validation
+- `/feedback/analytics` endpoint
+- `/feedback/queue` endpoint
+
+**Test Count:** See `pytest -q tests/test_api.py` for current count.
 
 ### `test_llm.py` (NEW - Post 2)
 Comprehensive tests for the LLM service layer.
@@ -138,6 +144,15 @@ Tests for actionable monitoring behavior.
 - Quality breach action activation
 - Performance budget breach activation
 - Action expiration and auto-clear behavior
+
+### `test_feedback.py` (NEW - Post 8)
+Tests for low-friction feedback ingestion and analytics.
+
+**Coverage:**
+- Reference detection for served responses
+- Feedback priority assignment
+- Feedback coverage and negativity metrics
+- High-priority queue generation
 
 ## Running Tests
 
