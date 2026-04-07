@@ -12,7 +12,8 @@ This is a series on building healthcare AI systems from scratch, from foundation
 **Post 4: Variability Control** - Measure and control model consistency  
 **Post 5: Evaluation Harness** - Systematic model evaluation and regression detection  
 **Post 6: Shadow Mode** - Safe model rollout with dual-path execution and HAPI FHIR  
-**Post 7: Monitoring That Triggers Action** - Guardrails that automatically pause or freeze rollout (current)
+**Post 7: Monitoring That Triggers Action** - Guardrails that automatically pause or freeze rollout  
+**Post 8: Human Feedback Without Burning Clinicians** - Low-friction feedback loops with analytics and triage (current)
 
 We focus on:
 - **Auditability**: Every request gets a traceable audit ID
@@ -94,7 +95,7 @@ Safe rollout foundations for candidate models:
 - ✅ `/shadow/summarize` endpoint for dual-path execution
 - ✅ 5 shadow-mode tests plus API coverage
 
-### Post 7: Monitoring That Triggers Action (Current)
+### Post 7: Monitoring That Triggers Action
 Monitoring that changes runtime behavior:
 - ✅ Actionable monitoring service with rolling quality/performance snapshots
 - ✅ Automatic `pause_shadow_mode` guardrail on quality degradation
@@ -102,6 +103,21 @@ Monitoring that changes runtime behavior:
 - ✅ Persisted monitoring action state with TTL
 - ✅ `/monitoring/status`, `/monitoring/evaluate`, `/monitoring/actions/reset` endpoints
 - ✅ Monitoring report script for operations
+
+### Post 8: Human Feedback Without Burning Clinicians (Current)
+Feedback loops clinicians can actually use:
+- ✅ `POST /feedback` endpoint for structured low-friction submission
+- ✅ Optional inline correction capture for targeted fixes
+- ✅ Response-rate and sentiment analytics via `GET /feedback/analytics`
+- ✅ High-priority review queue via `GET /feedback/queue`
+- ✅ Feedback report script for operational triage
+
+### Bonus UI: Unified Frontend Workbench
+A modern minimal Vite UI that lets users test Posts 1-8 in one place:
+- ✅ Single navigation surface for all completed posts
+- ✅ SMART on FHIR-ready auth abstraction
+- ✅ `/launch` route for EHR launch + iframe embedding workflows
+- ✅ Placeholders for Posts 9-12 and final platform release
 
 ## 🚀 Quick Start
 
@@ -173,6 +189,7 @@ healthcare-ai-from-scratch/
 │   ├── evaluation.py    # Evaluation harness (Post 5)
 │   ├── shadow.py        # Shadow mode utilities (Post 6 foundation)
 │   ├── monitoring.py    # Actionable monitoring guardrails (Post 7)
+│   ├── feedback.py      # Human feedback capture and analytics (Post 8)
 │   └── helm_adapter.py  # MedHELM / HELM integration (Post 5, optional)
 ├── prompts/             # Versioned prompt files (Post 3)
 │   └── clinical_summarization_v1.0.0.yaml
@@ -187,7 +204,8 @@ healthcare-ai-from-scratch/
 │   ├── test_variability.py  # Variability tests (Post 4)
 │   ├── test_evaluation.py   # Evaluation tests (Post 5)
 │   ├── test_shadow.py       # Shadow mode tests (Post 6 foundation)
-│   └── test_monitoring.py   # Monitoring action tests (Post 7)
+│   ├── test_monitoring.py   # Monitoring action tests (Post 7)
+│   └── test_feedback.py     # Feedback loop tests (Post 8)
 ├── examples/
 │   ├── test_client.py       # Example client usage
 │   ├── test_summarize.py    # LLM summarization example (Post 2)
@@ -200,7 +218,12 @@ healthcare-ai-from-scratch/
 ├── scripts/
 │   ├── compare_evaluators.py  # Compare built-in vs MedHELM / HELM (Post 5)
 │   ├── shadow_rollout_report.py  # Summarize saved shadow runs (Post 6)
-│   └── monitoring_action_report.py  # Show monitoring actions/state (Post 7)
+│   ├── monitoring_action_report.py  # Show monitoring actions/state (Post 7)
+│   └── feedback_analytics_report.py  # Show feedback metrics/queue (Post 8)
+├── ui/                  # Bonus Vite UI workbench (Posts 1-8 + SMART-ready)
+│   ├── src/
+│   ├── docs/SMART_ON_FHIR.md
+│   └── README.md
 ├── docs/
 │   ├── QUICKSTART.md
 │   └── architecture.md
@@ -361,6 +384,18 @@ Force immediate monitoring evaluation and action updates.
 
 Reset active monitoring actions after incident review/remediation.
 
+### POST /feedback (Post 8: Human Feedback)
+
+Submit structured clinician feedback linked to an `audit_id`.
+
+### GET /feedback/analytics (Post 8: Human Feedback)
+
+Return feedback coverage, sentiment, and category analytics over a time window.
+
+### GET /feedback/queue (Post 8: Human Feedback)
+
+Return high-priority negative feedback items for targeted review.
+
 ## 🧪 Testing
 
 ```bash
@@ -388,6 +423,9 @@ pytest -v
 - `scripts/monitoring_action_report.py` - evaluate monitoring rules and print active Post 7 actions
 - `docs/POST_7_LINKEDIN_ARTICLE.md` - Post 7 narrative article
 - `docs/POST_7_SUMMARY.md` - Post 7 implementation summary
+- `scripts/feedback_analytics_report.py` - evaluate Post 8 participation and triage queue
+- `docs/POST_8_LINKEDIN_ARTICLE.md` - Post 8 narrative article
+- `docs/POST_8_SUMMARY.md` - Post 8 implementation summary
 
 ## 🐳 Docker Deployment
 
@@ -401,6 +439,34 @@ docker run -p 8000:8000 healthcare-ai-service:latest
 # Using docker-compose
 docker-compose up
 ```
+
+`docker-compose` now starts both services:
+- API: `http://localhost:8000`
+- UI: `http://localhost:3000`
+
+## 🖥️ Bonus UI (Vite)
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+UI runs at `http://localhost:5173` and proxies API calls to backend `http://localhost:8000` via `/api/*`.
+Run UI smoke tests with `cd ui && npm run e2e`.
+
+Primary production workflows:
+- `/command-center`
+- `/patient-workspace`
+- `/quality-evaluation`
+- `/rollout-monitoring`
+- `/feedback-review`
+
+Control-plane routes:
+- `/release-gate`
+- `/audit-explorer`
+- `/incidents`
+- `/launch` (SMART adapter, use `?embed=1` for iframe mode)
 
 ## 📊 Logging
 
@@ -439,7 +505,7 @@ This foundation matters because:
 
 ## 📚 What to Internalize
 
-Across Posts 1-7:
+Across Posts 1-8:
 
 - ✅ AI is a dependency, not the system
 - ✅ Interfaces matter more than model churn
@@ -455,10 +521,10 @@ Across Posts 1-7:
 - [x] **Post 4**: Determinism, Variability, and Why Clinicians Notice
 - [x] **Post 5**: Building Your First Evaluation Harness
 - [x] **Post 6**: Shadow Mode Deployment
-- [x] **Post 7**: Monitoring That Triggers Action (current)
+- [x] **Post 7**: Monitoring That Triggers Action
+- [x] **Post 8**: Human Feedback Without Burning Clinicians (current)
 
 ### Planned
-- [ ] **Post 8**: Human Feedback Without Burning Clinicians
 - [ ] **Post 9**: Failure Drills for AI Systems
 - [ ] **Post 10**: Governance as Code
 - [ ] **Post 11**: From Service to Platform

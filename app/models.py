@@ -409,3 +409,117 @@ class MonitoringStatusResponse(BaseModel):
     last_evaluated_at: Optional[datetime] = Field(None, description="Last time monitoring was evaluated")
     snapshot: Optional[MonitoringSnapshotResponse] = Field(None, description="Latest metric snapshot")
     actions: list[MonitoringActionResponse] = Field(..., description="Current action states")
+
+
+class FeedbackRequest(BaseModel):
+    """Low-friction clinician feedback payload for Post 8."""
+    audit_id: UUID = Field(..., description="Audit ID of the AI response being reviewed")
+    signal: str = Field(..., description="Overall feedback signal", examples=["up", "down"])
+    categories: list[str] = Field(
+        default_factory=list,
+        description="Structured issue categories",
+        examples=[["clinical_accuracy"], ["tone", "formatting"]],
+    )
+    correction_text: Optional[str] = Field(
+        None,
+        max_length=2000,
+        description="Inline correction from the clinician",
+    )
+    comment: Optional[str] = Field(
+        None,
+        max_length=1000,
+        description="Optional free-text comment",
+    )
+    clinician_role: Optional[str] = Field(
+        None,
+        max_length=50,
+        description="Role label such as RN, MD, NP",
+    )
+    seconds_to_submit: Optional[int] = Field(
+        None,
+        ge=0,
+        le=600,
+        description="Approximate seconds taken to submit feedback",
+    )
+    source_endpoint: str = Field(
+        default="summarize",
+        description="Endpoint where the reviewed response was presented",
+        examples=["summarize", "shadow/summarize"],
+    )
+
+    @field_validator("signal")
+    @classmethod
+    def validate_signal(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in {"up", "down"}:
+            raise ValueError("signal must be 'up' or 'down'")
+        return normalized
+
+
+class FeedbackResponse(BaseModel):
+    """Response model for accepted clinician feedback."""
+    feedback_id: UUID = Field(..., description="Unique feedback event ID")
+    audit_id: UUID = Field(..., description="Referenced AI response audit ID")
+    status: str = Field(..., description="Feedback ingestion status", examples=["accepted"])
+    signal: str = Field(..., description="Normalized feedback signal")
+    priority: str = Field(..., description="Triage priority", examples=["low", "medium", "high"])
+    reference_found: bool = Field(..., description="Whether audit_id exists in served-response history")
+    created_at: datetime = Field(..., description="UTC timestamp when feedback was stored")
+
+
+class FeedbackAnalyticsResponse(BaseModel):
+    """Aggregated feedback analytics for operational review."""
+    window_days: int = Field(..., description="Analytics window in days")
+    issued_response_count: int = Field(..., description="Count of served AI responses in window")
+    feedback_event_count: int = Field(..., description="Count of feedback events in window")
+    feedback_coverage_rate: float = Field(..., description="Share of served responses with feedback")
+    positive_feedback_count: int = Field(..., description="Count of positive feedback events")
+    negative_feedback_count: int = Field(..., description="Count of negative feedback events")
+    negative_feedback_rate: float = Field(..., description="Share of negative feedback among submissions")
+    category_breakdown: dict[str, int] = Field(..., description="Feedback count by category")
+    avg_seconds_to_submit: float = Field(..., description="Average submission time")
+    high_priority_queue_count: int = Field(..., description="High-priority items requiring review")
+
+
+class FeedbackQueueItemResponse(BaseModel):
+    """High-priority feedback queue entry."""
+    feedback_id: UUID = Field(..., description="Feedback event ID")
+    audit_id: UUID = Field(..., description="Referenced AI response audit ID")
+    reason: str = Field(..., description="Reason for queue inclusion")
+    categories: list[str] = Field(..., description="Associated feedback categories")
+    created_at: datetime = Field(..., description="UTC timestamp when feedback was submitted")
+
+
+class AuditSearchResponse(BaseModel):
+    """Audit explorer search hit."""
+    audit_id: str = Field(..., description="Audit identifier")
+    source: str = Field(..., description="Source dataset")
+    event_type: str = Field(..., description="Event type")
+    timestamp: datetime = Field(..., description="Event timestamp")
+    details: dict[str, Any] = Field(..., description="Event details")
+
+
+class IncidentCreateRequest(BaseModel):
+    """Manual incident creation request."""
+    title: str = Field(..., min_length=3, max_length=200)
+    severity: str = Field(..., description="Severity level", examples=["warning", "critical"])
+    source: str = Field(..., description="Source system", examples=["monitoring", "operator"])
+    summary: str = Field(..., min_length=3, max_length=2000)
+    owner: Optional[str] = Field(None, max_length=100)
+    linked_action: Optional[str] = Field(None, max_length=100)
+    linked_audit_id: Optional[str] = Field(None, max_length=100)
+
+
+class IncidentResponse(BaseModel):
+    """Incident workspace record."""
+    incident_id: UUID = Field(..., description="Incident identifier")
+    title: str = Field(..., description="Incident title")
+    status: str = Field(..., description="Incident status", examples=["open", "resolved"])
+    severity: str = Field(..., description="Severity")
+    source: str = Field(..., description="Source")
+    linked_action: Optional[str] = Field(None, description="Linked monitoring action")
+    linked_audit_id: Optional[str] = Field(None, description="Linked audit ID")
+    summary: str = Field(..., description="Incident summary")
+    owner: Optional[str] = Field(None, description="Owner")
+    created_at: datetime = Field(..., description="Creation timestamp")
+    updated_at: datetime = Field(..., description="Last update timestamp")

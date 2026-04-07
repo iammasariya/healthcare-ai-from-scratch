@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-04-07
+
+### Added
+- Workflow-first production UI navigation for completed platform capabilities:
+  - `/command-center`, `/patient-workspace`, `/quality-evaluation`, `/rollout-monitoring`, `/feedback-review`
+- Control-plane backend and UI modules:
+  - `GET /audits/search`
+  - `GET/POST /incidents`, `POST /incidents/sync-monitoring`, `POST /incidents/{incident_id}/resolve`
+  - Audit Explorer and Incident Workspace pages
+- Release gate and command-center workflow wiring in UI
+- SMART on FHIR hardening updates:
+  - SMART launch route improvements for launch/callback context
+  - iframe embed mode via `?embed=1`
+- End-to-end UI smoke suite using Playwright (`ui/e2e/workflows.spec.ts`)
+- Production deployment bundle for full platform runtime:
+  - `ui/Dockerfile`
+  - `ui/nginx.conf.template` with configurable `FRAME_ANCESTORS`
+  - `docker-compose.yml` updated to run API + UI
+
+### Changed
+- Backend version updated to `0.8.1`
+- Overview and app shell shifted from tutorial-only navigation to workflow-centered operations UX
+- README/ROADMAP/QUICKSTART/UI docs updated for one-command full-stack deployment and SMART embedding guidance
+
 ## [0.1.0] - 2026-01-27
 
 ### Added
@@ -357,6 +381,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] - 2026-04-07
+
+### Added - Post 8: Human Feedback Without Burning Clinicians
+- **Feedback Service**: Low-friction clinician feedback capture with append-only JSONL storage
+- **Feedback Submission Endpoint**: `POST /feedback` with `up/down` signal, categories, and optional inline correction
+- **Feedback Analytics Endpoint**: `GET /feedback/analytics` for coverage, sentiment, and category metrics
+- **High-Priority Queue Endpoint**: `GET /feedback/queue` for targeted review of risky feedback
+- **Served Response Tracking**: `/summarize` and `/shadow/summarize` now register served responses for response-rate analytics
+- **Feedback Analytics Report CLI**: `scripts/feedback_analytics_report.py`
+- **8 New Tests**: 4 feedback service tests + 4 API feedback endpoint tests
+
+### Files Added
+- `app/feedback.py` - Feedback capture, analytics, and queue logic
+- `tests/test_feedback.py` - Feedback service tests
+- `scripts/feedback_analytics_report.py` - Feedback analytics report CLI
+- `docs/POST_8_LINKEDIN_ARTICLE.md` - Post 8 article
+- `docs/POST_8_SUMMARY.md` - Post 8 implementation summary
+
+### Files Modified
+- `app/main.py` - Feedback endpoints and served-response instrumentation
+- `app/models.py` - Feedback request/response models
+- `app/config.py` - Feedback configuration and version update
+- `tests/test_api.py` - Feedback endpoint tests
+- `.env.example` - Feedback environment variables
+
+### New Configuration
+- `FEEDBACK_ENABLED`
+- `FEEDBACK_STORE_DIR`
+- `FEEDBACK_DEFAULT_ANALYTICS_DAYS`
+- `FEEDBACK_MAX_CATEGORIES`
+- `FEEDBACK_MAX_QUEUE_ITEMS`
+- `FEEDBACK_HIGH_PRIORITY_CATEGORIES`
+
+---
+
 ## [0.5.0] - 2026-02-16
 
 ### Added - Post 5: Evaluation Harness
@@ -394,7 +453,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **0.5.0** - Evaluation harness (Post 5) ✅
 - **0.6.0** - Shadow mode deployment (Post 6) ✅
 - **0.7.0** - Monitoring that triggers action (Post 7) ✅
-- **0.8.0** - (Planned) Human feedback loops (Post 8)
+- **0.8.0** - Human feedback loops (Post 8) ✅
 - **0.9.0** - (Planned) Failure drills (Post 9)
 - **0.10.0** - (Planned) Governance as code (Post 10)
 - **0.11.0** - (Planned) From service to platform (Post 11)
@@ -446,6 +505,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New endpoints: `GET /monitoring/status`, `POST /monitoring/evaluate`, `POST /monitoring/actions/reset`
 - Added monitoring configuration values in `.env.example`
 - Shadow execution can now be automatically paused by monitoring policy
+
+### 0.7.0 → 0.8.0
+- Added structured clinician feedback capture and analytics
+- New endpoints: `POST /feedback`, `GET /feedback/analytics`, `GET /feedback/queue`
+- Added feedback configuration values in `.env.example`
+- Summarization and shadow responses are now tracked for feedback coverage metrics
 
 ---
 

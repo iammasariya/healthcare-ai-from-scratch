@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     
     # Application settings
     app_name: str = "Healthcare AI Service"
-    app_version: str = "0.7.0"
+    app_version: str = "0.8.1"
     debug: bool = False
     
     # API settings
@@ -86,6 +86,20 @@ class Settings(BaseSettings):
     monitoring_max_avg_shadow_cost_usd: float = 0.02
     monitoring_action_ttl_minutes: int = 30
     monitoring_state_file: str = "monitoring_state.json"
+
+    # Feedback settings (Post 8)
+    feedback_enabled: bool = True
+    feedback_store_dir: str = "feedback_data"
+    feedback_default_analytics_days: int = 7
+    feedback_max_categories: int = 3
+    feedback_max_queue_items: int = 20
+    feedback_high_priority_categories: list[str] = [
+        "clinical_accuracy",
+        "missing_critical_detail",
+        "hallucination",
+        "safety_concern",
+    ]
+    incident_store_file: str = "incident_store.json"
     
     model_config = SettingsConfigDict(
         env_file=".env",

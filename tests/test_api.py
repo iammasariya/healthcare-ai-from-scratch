@@ -731,3 +731,204 @@ class TestMonitoringEndpoints:
         data = response.json()
         assert data["rollout_decision"]["recommended_traffic_percentage"] == 0
         assert data["rollout_decision"]["decision"] == "hold"
+
+
+class TestFeedbackEndpoints:
+    """Tests for Post 8 feedback endpoints."""
+
+    def test_submit_feedback_success(self, client):
+        from unittest.mock import patch, Mock
+        from uuid import uuid4
+
+        request = {
+            "audit_id": str(uuid4()),
+            "signal": "down",
+            "categories": ["clinical_accuracy"],
+            "correction_text": "Medication should be metformin, not insulin.",
+            "seconds_to_submit": 18,
+            "source_endpoint": "summarize",
+        }
+
+        mock_event = Mock(
+            feedback_id=str(uuid4()),
+            audit_id=request["audit_id"],
+            signal="down",
+            priority="high",
+            reference_found=True,
+            created_at="2026-04-07T10:00:00",
+        )
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+            mock_settings.feedback_max_categories = 3
+
+            with patch("app.main.feedback_service") as mock_feedback_service:
+                mock_feedback_service.submit_feedback.return_value = mock_event
+                response = client.post("/feedback", json=request)
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "accepted"
+        assert data["priority"] == "high"
+
+    def test_submit_feedback_rejects_too_many_categories(self, client):
+        from unittest.mock import patch
+        from uuid import uuid4
+
+        request = {
+            "audit_id": str(uuid4()),
+            "signal": "down",
+            "categories": ["a", "b", "c", "d"],
+        }
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+            mock_settings.feedback_max_categories = 3
+            response = client.post("/feedback", json=request)
+
+        assert response.status_code == 400
+        assert "too many categories" in response.json()["message"].lower()
+
+    def test_feedback_analytics_endpoint(self, client):
+        from unittest.mock import patch, Mock
+
+        snapshot = Mock(
+            window_days=7,
+            issued_response_count=10,
+            feedback_event_count=5,
+            feedback_coverage_rate=0.5,
+            positive_feedback_count=3,
+            negative_feedback_count=2,
+            negative_feedback_rate=0.4,
+            category_breakdown={"clinical_accuracy": 2},
+            avg_seconds_to_submit=14.5,
+            high_priority_queue_count=1,
+        )
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+
+            with patch("app.main.feedback_service") as mock_feedback_service:
+                mock_feedback_service.analytics.return_value = snapshot
+                response = client.get("/feedback/analytics")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["feedback_event_count"] == 5
+        assert data["feedback_coverage_rate"] == 0.5
+
+    def test_feedback_queue_endpoint(self, client):
+        from unittest.mock import patch, Mock
+        from uuid import uuid4
+
+        queue_items = [
+            Mock(
+                feedback_id=str(uuid4()),
+                audit_id=str(uuid4()),
+                reason="Negative feedback marked high priority",
+                categories=["hallucination"],
+                created_at="2026-04-07T10:01:00",
+            )
+        ]
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+
+            with patch("app.main.feedback_service") as mock_feedback_service:
+                mock_feedback_service.high_priority_queue.return_value = queue_items
+                response = client.get("/feedback/queue")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["categories"] == ["hallucination"]
+
+    def test_feedback_analytics_rejects_invalid_window(self, client):
+        from unittest.mock import patch
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+            response = client.get("/feedback/analytics?window_days=0")
+
+        assert response.status_code == 400
+        assert "window_days" in response.json()["message"]
+
+    def test_feedback_queue_rejects_invalid_limit(self, client):
+        from unittest.mock import patch
+
+        with patch("app.main.settings") as mock_settings:
+            mock_settings.feedback_enabled = True
+            response = client.get("/feedback/queue?limit=0")
+
+        assert response.status_code == 400
+        assert "limit" in response.json()["message"]
+
+
+class TestControlPlaneEndpoints:
+    """Tests for audit explorer and incident workspace endpoints."""
+
+    def test_audit_search_endpoint(self, client):
+        from unittest.mock import patch, Mock
+
+        hits = [
+            Mock(
+                audit_id="audit-1",
+                source="feedback_store",
+                event_type="feedback",
+                timestamp="2026-04-07T10:10:00",
+                details={"signal": "down"},
+            )
+        ]
+
+        with patch("app.main.audit_service") as mock_audit_service:
+            mock_audit_service.search.return_value = hits
+            response = client.get("/audits/search?query=audit&days=7&limit=10")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 1
+        assert data[0]["event_type"] == "feedback"
+
+    def test_incident_workspace_crud(self, client):
+        from unittest.mock import patch, Mock
+        from uuid import uuid4
+
+        incident = Mock(
+            incident_id=str(uuid4()),
+            title="Monitoring action: pause_shadow_mode",
+            status="open",
+            severity="critical",
+            source="monitoring",
+            linked_action="pause_shadow_mode",
+            linked_audit_id=None,
+            summary="Quality guardrail breached",
+            owner=None,
+            created_at="2026-04-07T10:10:00",
+            updated_at="2026-04-07T10:10:00",
+        )
+
+        with patch("app.main.incident_service") as mock_incident_service:
+            mock_incident_service.create_incident.return_value = incident
+            create_response = client.post(
+                "/incidents",
+                json={
+                    "title": "Monitoring action: pause_shadow_mode",
+                    "severity": "critical",
+                    "source": "monitoring",
+                    "summary": "Quality guardrail breached",
+                },
+            )
+
+            mock_incident_service.list_incidents.return_value = [incident]
+            list_response = client.get("/incidents")
+
+            mock_incident_service.sync_from_monitoring_actions.return_value = [incident]
+            sync_response = client.post("/incidents/sync-monitoring")
+
+            mock_incident_service.resolve_incident.return_value = incident
+            resolve_response = client.post(f"/incidents/{incident.incident_id}/resolve")
+
+        assert create_response.status_code == 200
+        assert list_response.status_code == 200
+        assert sync_response.status_code == 200
+        assert resolve_response.status_code == 200

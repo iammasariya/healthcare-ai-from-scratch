@@ -78,6 +78,7 @@ Complete guide to navigating this codebase.
 | **app/evaluation.py** | Evaluation harness (Post 5) | `Evaluator`, `GoldenDataset`, `RegressionDetector` |
 | **app/shadow.py** | Shadow mode (Post 6) | `ShadowModeRunner`, `HAPIFHIRClient`, `ShadowResultStore` |
 | **app/monitoring.py** | Actionable monitoring (Post 7) | `MonitoringService`, `MonitoringStateStore` |
+| **app/feedback.py** | Human feedback loop (Post 8) | `FeedbackService`, `FeedbackStore` |
 | **app/helm_adapter.py** | HELM integration (Post 5) | `ClinicalModel`, HELM adapter (optional) |
 
 ### Testing
@@ -91,6 +92,7 @@ Complete guide to navigating this codebase.
 | **tests/test_variability.py** | Variability system (Post 4) | Metrics, similarity, seeds, temperature, alerts |
 | **tests/test_evaluation.py** | Evaluation harness (Post 5) | Golden datasets, evaluation metrics, regression detection |
 | **tests/test_monitoring.py** | Monitoring system (Post 7) | Guardrail actions, snapshots, action expiry |
+| **tests/test_feedback.py** | Feedback system (Post 8) | Submission, analytics, queue behavior |
 
 ### Examples
 
@@ -117,6 +119,8 @@ Complete guide to navigating this codebase.
 | **verify_prompts.py** | Prompt verification script (Post 3) |
 | **scripts/shadow_rollout_report.py** | Summarize saved shadow runs (Post 6) |
 | **scripts/monitoring_action_report.py** | Evaluate monitoring and print active actions (Post 7) |
+| **scripts/feedback_analytics_report.py** | Summarize feedback analytics and review queue (Post 8) |
+| **ui/** | Bonus Vite frontend workbench (Posts 1-8) |
 
 ## 🔍 By Topic
 
@@ -325,7 +329,7 @@ Before deploying or modifying:
 
 ## 🎯 Remember
 
-**Current Status**: Post 7 completed
+**Current Status**: Post 8 completed
 
 - Foundation is built (Post 1)
 - LLM integration added (Post 2)
@@ -334,7 +338,8 @@ Before deploying or modifying:
 - Evaluation harness implemented (Post 5)
 - Shadow mode deployment implemented (Post 6)
 - Actionable monitoring implemented (Post 7)
-- 5 more posts to complete the series
+- Human feedback loop implemented (Post 8)
+- 4 more posts to complete the series
 
 **The foundation outlives the models.**
 
@@ -351,8 +356,8 @@ Healthcare AI From Scratch (12-Post Series)
 ├─ ✅ Post 4: Determinism, Variability, and Why Clinicians Notice
 ├─ ✅ Post 5: Building Your First Evaluation Harness
 ├─ ✅ Post 6: Shadow Mode Deployment
-├─ ✅ Post 7: Monitoring That Triggers Action ← YOU ARE HERE
-├─ 📋 Post 8: Human Feedback Without Burning Clinicians
+├─ ✅ Post 7: Monitoring That Triggers Action
+├─ ✅ Post 8: Human Feedback Without Burning Clinicians ← YOU ARE HERE
 ├─ 📋 Post 9: Failure Drills for AI Systems
 ├─ 📋 Post 10: Governance as Code
 ├─ 📋 Post 11: From Service to Platform

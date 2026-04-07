@@ -292,8 +292,15 @@ Added runtime guardrails:
 - ✅ Automatic rollout freeze action on budget/performance breach
 - ✅ Monitoring status/evaluate/reset endpoints
 
-### Beyond Post 7
-The series continues through Post 12, covering human feedback, failure drills, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
+### Post 8: Human Feedback Without Burning Clinicians (Completed)
+Added low-friction human-in-the-loop capabilities:
+- ✅ Structured feedback submission linked to audit IDs
+- ✅ Inline correction capture
+- ✅ Feedback analytics with participation/quality metrics
+- ✅ High-priority feedback queue for targeted review
+
+### Beyond Post 8
+The series continues through Post 12, covering failure drills, governance, and scaling. See [ROADMAP.md](../ROADMAP.md) for the complete series plan.
 
 Each post builds on this foundation without breaking it.
 

@@ -33,6 +33,10 @@ ENV/
 *.swo
 *~
 .DS_Store
+ui/node_modules/
+ui/dist/
+ui/playwright-report/
+ui/test-results/
 
 # Testing
 .pytest_cache/
@@ -50,6 +54,8 @@ shadow_results/
 helm_output/
 .helm_cache/
 monitoring_state.json
+incident_store.json
+feedback_data/
 
 # Environment
 .env
